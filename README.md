@@ -36,6 +36,7 @@ sudo apt-get install cmake cmake-curses-gui libprotobuf-dev libgtest-dev libre2-
 Compile libphonenumber
 
 ```sh
+git clone https://github.com/googlei18n/libphonenumber.git
 cd libphonenumber/cpp
 mkdir build
 cd build
