@@ -1,40 +1,59 @@
 elibphonenumber
 ===============
 
-Erlang port for use [libphonenumber 5.9](https://code.google.com/p/libphonenumber/) from erlang (in development)
+Erlang port for use [libphonenumber](https://github.com/googlei18n/libphonenumber) from erlang
+
 
 ## Documentation
 
 [doc](http://artefactop.github.io/elibphonenumber/ "documentation")
 
 ## Compile and test
-You need install libphonenumber-dev for compile and libphonenumber5 for run
 
-```bash
-svn checkout http://libphonenumber.googlecode.com/svn/trunk/ libphonenumber-read-only
-cd libphonenumber-read-only
-#install dependencies, less cpp/README
-dpkg-buildpackage
-cd ..
-sudo dpkg -i libphonenumber-dev_5.9.2_amd64.deb
-sudo dpkg -i libphonenumber5_5.9.2_amd64.deb
+You need compile libphonenumber and install it before using the project. 
+
+For Ubuntu
+
+Find and download the Debian packages for your system. For example:
+
+```
+http://packages.ubuntu.com/utopic/libre2-1
+http://packages.ubuntu.com/utopic/libre2-dev
 ```
 
-```bash
+You need to download both the libre2-dev and libre2-1 packages. Once downloaded, install them with:
+
+```sh
+sudo dpkg -i libre2*.deb
+```
+
+Then install all deps:
+
+```sh
+sudo apt-get install cmake cmake-curses-gui libprotobuf-dev libgtest-dev libre2-dev libicu-dev libboost-dev libboost-thread-dev libboost-system-dev protobuf-compiler
+```
+
+Compile libphonenumber
+
+```sh
+cd libphonenumber/cpp
+mkdir build
+cd build
+cmake ..
+make
+make install
+```
+
+Update ldconfig path
+
+```sh
+﻿nano /etc/ld.so.conf.d/usrlocal.conf
+﻿add inside the file: usr/local/lib
+﻿ldconfig -v
+```
+
+Run the erlang lib test
+
+```sh
 rebar compile eunit
 ```
-
-NOTE: Maybe you have to copy some headers files manualy 
-```
-libphonenumber-read-only/cpp/src/phonenumbers$ sudo cp phonenumber.h /usr/include/phonenumbers/
-libphonenumber-read-only/cpp/src/phonenumbers$ sudo cp base/template_util.h /usr/include/phonenumbers/base/
-libphonenumber-read-only/cpp/src/phonenumbers$ sudo cp base/logging.h /usr/include/phonenumbers/base/
-libphonenumber-read-only/cpp/src/phonenumbers$ sudo cp base/thread_checker.h /usr/include/phonenumbers/base/
-libphonenumber-read-only/cpp/src/phonenumbers$ sudo cp base/memory/singleton_posix.h /usr/include/phonenumbers/base/memory/
-```
-
-
-TODO 
-
-- finish phonenumber_util:format_by_pattern
-

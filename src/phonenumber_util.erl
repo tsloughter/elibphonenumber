@@ -1,6 +1,5 @@
 -module(phonenumber_util).
 -export([
-    hello/1,
     get_supported_regions/0,
     is_alpha_number/1,
     convert_alpha_characters_in_number/1,
@@ -71,11 +70,6 @@ priv_dir() ->
     end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% @doc TEST.
-
-hello(_) ->
-      "NIF library not loaded".
 
 -spec get_supported_regions() -> list(binary()).
 
