@@ -48,9 +48,9 @@ make install
 Update ldconfig path
 
 ```sh
-﻿nano /etc/ld.so.conf.d/usrlocal.conf
-﻿add inside the file: usr/local/lib
-﻿ldconfig -v
+sudo nano /etc/ld.so.conf.d/usrlocal.conf
+add inside the file: /usr/local/lib
+sudo ldconfig -v
 ```
 
 Run the erlang lib test
