@@ -36,6 +36,7 @@ sudo apt-get install cmake cmake-curses-gui libprotobuf-dev libgtest-dev libre2-
 Compile libphonenumber
 
 ```sh
+git clone https://github.com/googlei18n/libphonenumber.git
 cd libphonenumber/cpp
 mkdir build
 cd build
@@ -47,9 +48,9 @@ make install
 Update ldconfig path
 
 ```sh
-﻿nano /etc/ld.so.conf.d/usrlocal.conf
-﻿add inside the file: usr/local/lib
-﻿ldconfig -v
+sudo nano /etc/ld.so.conf.d/usrlocal.conf
+add inside the file: /usr/local/lib
+sudo ldconfig -v
 ```
 
 Run the erlang lib test
