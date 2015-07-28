@@ -6,7 +6,6 @@
 #include <set>
 #include <string>
 
-using namespace std;
 using namespace i18n::phonenumbers;
 
 struct atoms
@@ -47,6 +46,9 @@ struct atoms
 	ERL_NIF_TERM atomFormatInternational;
 	ERL_NIF_TERM atomFormatNational;
 	ERL_NIF_TERM atomFormatRFC3966;
+
+	ERL_NIF_TERM atomPhoneNumber;
+
 } ATOMS;
 
 ERL_NIF_TERM make_atom(ErlNifEnv* env, const char* name)
@@ -98,11 +100,13 @@ int on_nif_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
 	ATOMS.atomFormatNational = make_atom(env, "national");
 	ATOMS.atomFormatRFC3966 = make_atom(env, "rfc3966");
 
+	ATOMS.atomPhoneNumber = make_atom(env, "phonenumber");
+
 	*priv_data = NULL;
 	return 0;
 }
 
-static bool enif_get_phonenumber_format(const ERL_NIF_TERM term, PhoneNumberUtil::PhoneNumberFormat* number_format)
+static bool term_to_phonenumber_format(const ERL_NIF_TERM term, PhoneNumberUtil::PhoneNumberFormat* number_format)
 {
 	bool return_value = true;
 
@@ -120,7 +124,7 @@ static bool enif_get_phonenumber_format(const ERL_NIF_TERM term, PhoneNumberUtil
     return return_value;
 }
 
-static bool enif_get_phonenumber_country_code_source(const ERL_NIF_TERM term, PhoneNumber::CountryCodeSource* country_code_source)
+static bool term_to_phonenumber_country_code_source(const ERL_NIF_TERM term, PhoneNumber::CountryCodeSource* country_code_source)
 {
 	bool return_value = true;
 
@@ -138,7 +142,7 @@ static bool enif_get_phonenumber_country_code_source(const ERL_NIF_TERM term, Ph
 	return return_value;
 }
 
-static bool enif_get_phonenumber_type(const ERL_NIF_TERM term, PhoneNumberUtil::PhoneNumberType* type)
+static bool term_to_phonenumber_type(const ERL_NIF_TERM term, PhoneNumberUtil::PhoneNumberType* type)
 {
 	bool return_value = true;
 
@@ -172,7 +176,7 @@ static bool enif_get_phonenumber_type(const ERL_NIF_TERM term, PhoneNumberUtil::
 	return return_value;
 }
 
-static bool enif_get_boolean(const ERL_NIF_TERM term, bool* boolean)
+static bool term_to_boolean(const ERL_NIF_TERM term, bool* boolean)
 {
 	if(enif_is_identical(term, ATOMS.atomTrue))
 	{
@@ -189,12 +193,12 @@ static bool enif_get_boolean(const ERL_NIF_TERM term, bool* boolean)
 	return false;
 }
 
-static ERL_NIF_TERM enif_make_boolean(bool boolean)
+static ERL_NIF_TERM boolean_to_term(bool boolean)
 {
 	return boolean ? ATOMS.atomTrue : ATOMS.atomFalse;
 }
 
-static ERL_NIF_TERM enif_make_phonenumber_type(PhoneNumberUtil::PhoneNumberType type)
+static ERL_NIF_TERM phonenumber_type_to_term(PhoneNumberUtil::PhoneNumberType type)
 {
 	 switch(type)
 	 {
@@ -227,7 +231,7 @@ static ERL_NIF_TERM enif_make_phonenumber_type(PhoneNumberUtil::PhoneNumberType 
 	return ATOMS.atomUnknown;
 }
 
-static ERL_NIF_TERM enif_make_phonenumber_validation_result(PhoneNumberUtil::ValidationResult validation_result)
+static ERL_NIF_TERM phonenumber_validation_result_to_term(PhoneNumberUtil::ValidationResult validation_result)
 {
     switch(validation_result)
     {
@@ -244,7 +248,7 @@ static ERL_NIF_TERM enif_make_phonenumber_validation_result(PhoneNumberUtil::Val
     return ATOMS.atomInvalidContryCode;
 }
 
-static ERL_NIF_TERM enif_make_phonenumber_country_code_source(ErlNifEnv* env, PhoneNumber::CountryCodeSource country_code_source)
+static ERL_NIF_TERM phonenumber_country_code_source_to_term(ErlNifEnv* env, PhoneNumber::CountryCodeSource country_code_source)
 {
     switch(country_code_source)
     {
@@ -261,7 +265,7 @@ static ERL_NIF_TERM enif_make_phonenumber_country_code_source(ErlNifEnv* env, Ph
     return ATOMS.atomFromDefaultCountry;
 }
 
-static ERL_NIF_TERM enif_make_phonenumber_match_type(PhoneNumberUtil::MatchType match_type)
+static ERL_NIF_TERM phonenumber_match_type_to_term(PhoneNumberUtil::MatchType match_type)
 {
     switch(match_type)
     {
@@ -280,51 +284,50 @@ static ERL_NIF_TERM enif_make_phonenumber_match_type(PhoneNumberUtil::MatchType 
     return ATOMS.atomInvalidNumber;
 }
 
-static ERL_NIF_TERM enif_make_phonenumber(ErlNifEnv* env, PhoneNumber phoneNumber){
+static ERL_NIF_TERM phonenumber_to_term(ErlNifEnv* env, PhoneNumber phoneNumber)
+{
     unsigned char *buffer;
     ERL_NIF_TERM raw_input;
     ERL_NIF_TERM extension;
     ERL_NIF_TERM preferred_domestic_carrier_code;
 
-    ERL_NIF_TERM record = make_atom(env, "phonenumber");
-
     // required int32 country_code = 1;
-    ERL_NIF_TERM has_country_code = enif_make_boolean(phoneNumber.has_country_code());
+    ERL_NIF_TERM has_country_code = boolean_to_term(phoneNumber.has_country_code());
     ERL_NIF_TERM country_code = enif_make_int(env, phoneNumber.country_code());
 
     // required uint64 national_number = 2;
-    ERL_NIF_TERM has_national_number = enif_make_boolean(phoneNumber.has_national_number());
+    ERL_NIF_TERM has_national_number = boolean_to_term(phoneNumber.has_national_number());
     ERL_NIF_TERM national_number = enif_make_ulong(env, phoneNumber.national_number());
 
     // optional string extension = 3;
-    ERL_NIF_TERM has_extension = enif_make_boolean(phoneNumber.has_extension());
+    ERL_NIF_TERM has_extension = boolean_to_term(phoneNumber.has_extension());
     buffer = enif_make_new_binary(env, phoneNumber.extension().size(), &extension);
     std::copy(phoneNumber.extension().begin(), phoneNumber.extension().end(), buffer);
 
     // optional bool italian_leading_zero = 4;
-    ERL_NIF_TERM has_italian_leading_zero = enif_make_boolean(phoneNumber.has_italian_leading_zero());
-    ERL_NIF_TERM italian_leading_zero = enif_make_boolean(phoneNumber.italian_leading_zero());
+    ERL_NIF_TERM has_italian_leading_zero = boolean_to_term(phoneNumber.has_italian_leading_zero());
+    ERL_NIF_TERM italian_leading_zero = boolean_to_term(phoneNumber.italian_leading_zero());
 
     // optional int32 number_of_leading_zeros = 8 [default = 1];
-    ERL_NIF_TERM has_number_of_leading_zeros = enif_make_boolean(phoneNumber.has_number_of_leading_zeros());
+    ERL_NIF_TERM has_number_of_leading_zeros = boolean_to_term(phoneNumber.has_number_of_leading_zeros());
     ERL_NIF_TERM number_of_leading_zeros = enif_make_int(env, phoneNumber.number_of_leading_zeros());
     
     // optional string raw_input = 5;
-    ERL_NIF_TERM has_raw_input = enif_make_boolean(phoneNumber.has_raw_input());
+    ERL_NIF_TERM has_raw_input = boolean_to_term(phoneNumber.has_raw_input());
     buffer = enif_make_new_binary(env, phoneNumber.raw_input().size(), &raw_input);
     std::copy(phoneNumber.raw_input().begin(), phoneNumber.raw_input().end(), buffer);
 
     // optional .i18n.phonenumbers.PhoneNumber.CountryCodeSource country_code_source = 6;
-    ERL_NIF_TERM has_country_code_source = enif_make_boolean(phoneNumber.has_country_code_source());
-    ERL_NIF_TERM country_code_source = enif_make_phonenumber_country_code_source(env, phoneNumber.country_code_source());
+    ERL_NIF_TERM has_country_code_source = boolean_to_term(phoneNumber.has_country_code_source());
+    ERL_NIF_TERM country_code_source = phonenumber_country_code_source_to_term(env, phoneNumber.country_code_source());
 
     // optional string preferred_domestic_carrier_code = 7;
-    ERL_NIF_TERM has_preferred_domestic_carrier_code = enif_make_boolean(phoneNumber.has_preferred_domestic_carrier_code());
+    ERL_NIF_TERM has_preferred_domestic_carrier_code = boolean_to_term(phoneNumber.has_preferred_domestic_carrier_code());
     buffer = enif_make_new_binary(env, phoneNumber.preferred_domestic_carrier_code().size(), &preferred_domestic_carrier_code);
     std::copy(phoneNumber.preferred_domestic_carrier_code().begin(), phoneNumber.preferred_domestic_carrier_code().end(), buffer);
 
     return enif_make_tuple(env, 17,
-        record,
+        ATOMS.atomPhoneNumber,
         has_country_code,
         country_code,
         has_national_number,
@@ -340,101 +343,106 @@ static ERL_NIF_TERM enif_make_phonenumber(ErlNifEnv* env, PhoneNumber phoneNumbe
         has_country_code_source,
         country_code_source,
         has_preferred_domestic_carrier_code,
-        preferred_domestic_carrier_code
-    );
+        preferred_domestic_carrier_code);
 }
 
-static bool enif_inspect_phonenumber(ErlNifEnv* env, const ERL_NIF_TERM term, PhoneNumber* phoneNumber){
+static bool term_to_phonenumber(ErlNifEnv* env, const ERL_NIF_TERM term, PhoneNumber* phoneNumber)
+{
     int integer;
     unsigned long longer; //FIXME should be unsingned long long
     bool boolean;
     ErlNifBinary bin;
-    int PhoneNumberElems = 17;
+    int PhoneNumberElems;
 
     const ERL_NIF_TERM* array;
 
     // Get Term
-    if (!enif_get_tuple(env, term, &PhoneNumberElems, &array)){
+    if (!enif_get_tuple(env, term, &PhoneNumberElems, &array) || PhoneNumberElems != 17)
         return false;
-    }
 
     // required int32 country_code = 1;
-    if (!enif_get_int(env, array[2], &integer)) {
+    if (!enif_get_int(env, array[2], &integer))
         return false;
-    }
+
     phoneNumber->set_country_code(integer);
 
     // required uint64 national_number = 2;
-    if (!enif_get_ulong(env, array[4], &longer)) {
+    if (!enif_get_ulong(env, array[4], &longer))
         return false;
-    }
+
     phoneNumber->set_national_number(longer);
 
     // optional string extension = 3;
-    if (!enif_get_boolean(array[5], &boolean)) {
+
+    if (!term_to_boolean(array[5], &boolean))
         return false;
-    }
-    if (boolean){
-        if (!enif_inspect_iolist_as_binary(env, array[6], &bin)){
+
+    if (boolean)
+    {
+        if (!enif_inspect_iolist_as_binary(env, array[6], &bin))
             return false;
-        }
+
         phoneNumber->set_extension(std::string ( (char*) bin.data, bin.size));
     }
 
     // optional int32 number_of_leading_zeros = 8 [default = 1];
-    if (!enif_get_boolean(array[7], &boolean)) {
+    if (!term_to_boolean(array[7], &boolean))
         return false;
-    }
-    if (boolean){
-        if (!enif_get_int(env, array[8], &integer)) {
+
+    if (boolean)
+    {
+        if (!enif_get_int(env, array[8], &integer))
             return false;
-        }
+
         phoneNumber->set_number_of_leading_zeros(integer);
     }
 
     // optional bool italian_leading_zero = 4;
-    if (!enif_get_boolean(array[9], &boolean)) {
+    if (!term_to_boolean(array[9], &boolean))
         return false;
-    }
-    if (boolean){
-        if (!enif_get_boolean(array[10], &boolean)) {
+
+    if (boolean)
+    {
+        if (!term_to_boolean(array[10], &boolean))
             return false;
-        }
+
         phoneNumber->set_italian_leading_zero(boolean);
     }
-    //return true;
 
     // optional string raw_input = 5;
-    if (!enif_get_boolean(array[11], &boolean)) {
+    if (!term_to_boolean(array[11], &boolean))
         return false;
-    }
-    if (boolean){
-        if (!enif_inspect_iolist_as_binary(env, array[12], &bin)){
+
+    if (boolean)
+    {
+        if (!enif_inspect_iolist_as_binary(env, array[12], &bin))
             return false;
-        }
+
         phoneNumber->set_raw_input(std::string ( (char*) bin.data, bin.size));
     }
 
     // optional .i18n.phonenumbers.PhoneNumber.CountryCodeSource country_code_source = 6;
-    if (!enif_get_boolean(array[13], &boolean)) {
+    if (!term_to_boolean(array[13], &boolean))
         return false;
-    }
-    if (boolean){
+
+    if (boolean)
+    {
         PhoneNumber::CountryCodeSource country_code_source;
-        if (!enif_get_phonenumber_country_code_source(array[14], &country_code_source)) { //TODO enif_get_country_code_source
+        if (!term_to_phonenumber_country_code_source(array[14], &country_code_source))
             return false;
-        }
+
         phoneNumber->set_country_code_source(country_code_source);
     }
 
     // Get Preferred Domestic Carrier Code
-    if (!enif_get_boolean(array[15], &boolean)) {
+    if (!term_to_boolean(array[15], &boolean))
         return false;
-    }
-    if (boolean){
-        if (!enif_inspect_iolist_as_binary(env, array[16], &bin)){
+
+    if (boolean)
+    {
+        if (!enif_inspect_iolist_as_binary(env, array[16], &bin))
             return false;
-        }
+
         phoneNumber->set_preferred_domestic_carrier_code(std::string ( (char*) bin.data, bin.size));
     }
 
@@ -456,34 +464,34 @@ static ERL_NIF_TERM GetSupportedRegions_nif(ErlNifEnv* env, int argc, const ERL_
     ERL_NIF_TERM ret;
     unsigned char *region;
 
-    for (set<string>::iterator it=regions.begin(); it!=regions.end(); ++it, i++){
+    for (set<string>::iterator it=regions.begin(); it!=regions.end(); ++it, i++)
+    {
         region = enif_make_new_binary(env, it->size(), &ret);
         std::copy(it->begin(), it->end(), region);
         arr[i] = ret;
         ret = 0;
     }
+
     return enif_make_list_from_array(env, arr, cnt);
 }
 
 static ERL_NIF_TERM IsAlphaNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
 
     std::string str( (char*) bin.data, bin.size);
-    return enif_make_boolean(phone_util_->IsAlphaNumber(str));
+    return boolean_to_term(phone_util_->IsAlphaNumber(str));
 }
 
 static ERL_NIF_TERM ConvertAlphaCharactersInNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
 
@@ -500,9 +508,8 @@ static ERL_NIF_TERM ConvertAlphaCharactersInNumber_nif(ErlNifEnv* env, int argc,
 static ERL_NIF_TERM NormalizeDigitsOnly_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
 
@@ -519,9 +526,8 @@ static ERL_NIF_TERM NormalizeDigitsOnly_nif(ErlNifEnv* env, int argc, const ERL_
 static ERL_NIF_TERM NormalizeDiallableCharsOnly_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
 
@@ -538,9 +544,8 @@ static ERL_NIF_TERM NormalizeDiallableCharsOnly_nif(ErlNifEnv* env, int argc, co
 static ERL_NIF_TERM GetNationalSignificantNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string str;
@@ -556,35 +561,28 @@ static ERL_NIF_TERM GetNationalSignificantNumber_nif(ErlNifEnv* env, int argc, c
 static ERL_NIF_TERM GetLengthOfGeographicalAreaCode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
-    int length = phone_util_->GetLengthOfGeographicalAreaCode(phoneNumber);
-    
-    return enif_make_int(env, length);
+    return enif_make_int(env, phone_util_->GetLengthOfGeographicalAreaCode(phoneNumber));
 }
 
 static ERL_NIF_TERM GetLengthOfNationalDestinationCode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
-    int length = phone_util_->GetLengthOfNationalDestinationCode(phoneNumber);
-    
-    return enif_make_int(env, length);
+    return enif_make_int(env, phone_util_->GetLengthOfNationalDestinationCode(phoneNumber));
 }
 
 static ERL_NIF_TERM GetCountryMobileToken_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int code;
-    if (!enif_get_int(env, argv[0], &code)) {
+    if (!enif_get_int(env, argv[0], &code))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
 
@@ -602,14 +600,12 @@ static ERL_NIF_TERM GetCountryMobileToken_nif(ErlNifEnv* env, int argc, const ER
 static ERL_NIF_TERM Format_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil::PhoneNumberFormat phoneNumberFormat;
-    if (!enif_get_phonenumber_format(argv[1], &phoneNumberFormat)){
+    if (!term_to_phonenumber_format(argv[1], &phoneNumberFormat))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string str;
@@ -625,14 +621,12 @@ static ERL_NIF_TERM Format_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
 static ERL_NIF_TERM FormatNationalNumberWithPreferredCarrierCode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string fb_carrier_code( (char*) bin.data, bin.size);
@@ -649,14 +643,12 @@ static ERL_NIF_TERM FormatNationalNumberWithPreferredCarrierCode_nif(ErlNifEnv* 
 static ERL_NIF_TERM FormatNationalNumberWithCarrierCode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string carrier_code( (char*) bin.data, bin.size);
@@ -673,19 +665,16 @@ static ERL_NIF_TERM FormatNationalNumberWithCarrierCode_nif(ErlNifEnv* env, int 
 static ERL_NIF_TERM FormatNumberForMobileDialing_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin))
         return enif_make_badarg(env);
-    }
 
     bool with_formatting;
-    if (!enif_get_boolean(argv[2], &with_formatting)){
+    if (!term_to_boolean(argv[2], &with_formatting))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string region_calling_from( (char*) bin.data, bin.size);
@@ -702,14 +691,12 @@ static ERL_NIF_TERM FormatNumberForMobileDialing_nif(ErlNifEnv* env, int argc, c
 static ERL_NIF_TERM FormatOutOfCountryCallingNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string calling_from( (char*) bin.data, bin.size);
@@ -726,14 +713,12 @@ static ERL_NIF_TERM FormatOutOfCountryCallingNumber_nif(ErlNifEnv* env, int argc
 static ERL_NIF_TERM FormatInOriginalFormat_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string region_code( (char*) bin.data, bin.size);
@@ -750,14 +735,12 @@ static ERL_NIF_TERM FormatInOriginalFormat_nif(ErlNifEnv* env, int argc, const E
 static ERL_NIF_TERM FormatOutOfCountryKeepingAlphaChars_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string calling_from( (char*) bin.data, bin.size);
@@ -774,69 +757,58 @@ static ERL_NIF_TERM FormatOutOfCountryKeepingAlphaChars_nif(ErlNifEnv* env, int 
 static ERL_NIF_TERM TruncateTooLongNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     phone_util_->TruncateTooLongNumber(&phoneNumber);
 
-    return enif_make_phonenumber(env, phoneNumber);
+    return phonenumber_to_term(env, phoneNumber);
 }
 
 static ERL_NIF_TERM GetNumberType_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
-    PhoneNumberUtil::PhoneNumberType type = phone_util_->GetNumberType(phoneNumber);
 
-    return enif_make_phonenumber_type(type);
+    return phonenumber_type_to_term(phone_util_->GetNumberType(phoneNumber));
 }
 
 static ERL_NIF_TERM IsValidNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
-    bool valid = phone_util_->IsValidNumber(phoneNumber);
-
-    return enif_make_boolean(valid);
+    return boolean_to_term(phone_util_->IsValidNumber(phoneNumber));
 }
 
 static ERL_NIF_TERM IsValidNumberForRegion_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[1], &bin))
         return enif_make_badarg(env);
-    }
-
 
     std::string region_code( (char*) bin.data, bin.size);
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
-    bool valid = phone_util_->IsValidNumberForRegion(phoneNumber, region_code);
 
-    return enif_make_boolean(valid);
+    return boolean_to_term(phone_util_->IsValidNumberForRegion(phoneNumber, region_code));
 }
 
 static ERL_NIF_TERM GetRegionCodeForNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     std::string region_code;
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
@@ -852,23 +824,20 @@ static ERL_NIF_TERM GetRegionCodeForNumber_nif(ErlNifEnv* env, int argc, const E
 static ERL_NIF_TERM GetCountryCodeForRegion_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string region_code( (char*) bin.data, bin.size);
-    int code = phone_util_->GetCountryCodeForRegion(region_code);
     
-    return enif_make_int(env, code);
+    return enif_make_int(env, phone_util_->GetCountryCodeForRegion(region_code));
 }
 
 static ERL_NIF_TERM GetRegionCodeForCountryCode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int code;
-    if (!enif_get_int(env, argv[0], &code)) {
+    if (!enif_get_int(env, argv[0], &code))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
 
@@ -886,9 +855,8 @@ static ERL_NIF_TERM GetRegionCodeForCountryCode_nif(ErlNifEnv* env, int argc, co
 static ERL_NIF_TERM GetRegionCodesForCountryCallingCode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int code;
-    if (!enif_get_int(env, argv[0], &code)) {
+    if (!enif_get_int(env, argv[0], &code))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
 
@@ -902,40 +870,37 @@ static ERL_NIF_TERM GetRegionCodesForCountryCallingCode_nif(ErlNifEnv* env, int 
     ERL_NIF_TERM ret;
     unsigned char *region;
 
-    for (list<string>::iterator it=regions.begin(); it!=regions.end(); ++it, i++){
+    for (list<string>::iterator it=regions.begin(); it!=regions.end(); ++it, i++)
+    {
         region = enif_make_new_binary(env, it->size(), &ret);
         std::copy(it->begin(), it->end(), region);
         arr[i] = ret;
         ret = 0;
     }
+
     return enif_make_list_from_array(env, arr, cnt);
 }
 
 static ERL_NIF_TERM IsNANPACountry_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary regionCodeNif;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &regionCodeNif)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &regionCodeNif))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string region_code( (char*) regionCodeNif.data, regionCodeNif.size);
-    bool nanpa = phone_util_->IsNANPACountry(region_code);
-
-    return enif_make_boolean(nanpa);
+    return boolean_to_term(phone_util_->IsNANPACountry(region_code));
 }
 
 static ERL_NIF_TERM GetNddPrefixForRegion_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary regionCodeNif;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &regionCodeNif)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &regionCodeNif))
         return enif_make_badarg(env);
-    }
 
     bool stripNonDigits;
-    if (!enif_get_boolean(argv[1], &stripNonDigits)){
+    if (!term_to_boolean(argv[1], &stripNonDigits))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
 
@@ -953,67 +918,57 @@ static ERL_NIF_TERM GetNddPrefixForRegion_nif(ErlNifEnv* env, int argc, const ER
 static ERL_NIF_TERM IsPossibleNumberWithReason_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     PhoneNumberUtil::ValidationResult validation_result = phone_util_->IsPossibleNumberWithReason(phoneNumber);
 
-    return enif_make_phonenumber_validation_result(validation_result);
+    return phonenumber_validation_result_to_term(validation_result);
 }
 
 static ERL_NIF_TERM IsPossibleNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
-    bool possible = phone_util_->IsPossibleNumber(phoneNumber);
-
-    return enif_make_boolean(possible);
+    return boolean_to_term(phone_util_->IsPossibleNumber(phoneNumber));
 }
 
 static ERL_NIF_TERM IsPossibleNumberForString_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary nifNumber;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &nifNumber)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &nifNumber))
         return enif_make_badarg(env);
-    }
 
     ErlNifBinary nifRegionDialingFrom;
-    if (!enif_inspect_iolist_as_binary(env, argv[1], &nifRegionDialingFrom)){
+    if (!enif_inspect_iolist_as_binary(env, argv[1], &nifRegionDialingFrom))
         return enif_make_badarg(env);
-    }
 
     PhoneNumber phoneNumber;
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string region_dialing_from( (char*) nifRegionDialingFrom.data, nifRegionDialingFrom.size);
     std::string number( (char*) nifNumber.data, nifNumber.size);
-    bool possible = phone_util_->IsPossibleNumberForString(number, region_dialing_from);
 
-    return enif_make_boolean(possible);
+    return boolean_to_term(phone_util_->IsPossibleNumberForString(number, region_dialing_from));
 }
 
 static ERL_NIF_TERM GetExampleNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
-    }
 
     PhoneNumber phoneNumber;
     std::string region_code( (char*) bin.data, bin.size);
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
-    bool result = phone_util_->GetExampleNumber(region_code, &phoneNumber);
 
-    if (result){
-        return enif_make_phonenumber(env, phoneNumber);
-    }
+    if (phone_util_->GetExampleNumber(region_code, &phoneNumber))
+        return phonenumber_to_term(env, phoneNumber);
 
     return ATOMS.atomFalse;
 }
@@ -1021,25 +976,20 @@ static ERL_NIF_TERM GetExampleNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF
 static ERL_NIF_TERM GetExampleNumberForType_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary bin;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil::PhoneNumberType type;
-    if (!enif_get_phonenumber_type(argv[1], &type)){
+    if (!term_to_phonenumber_type(argv[1], &type))
         return enif_make_badarg(env);
-    }
 
     PhoneNumber phoneNumber;
     std::string region_code( (char*) bin.data, bin.size);
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
 
-    bool result = phone_util_->GetExampleNumberForType(region_code, type, &phoneNumber);
-
-    if (result){
-        return enif_make_phonenumber(env, phoneNumber);
-    }
+    if (phone_util_->GetExampleNumberForType(region_code, type, &phoneNumber))
+        return phonenumber_to_term(env, phoneNumber);
 
     return ATOMS.atomFalse;
 }
@@ -1047,18 +997,15 @@ static ERL_NIF_TERM GetExampleNumberForType_nif(ErlNifEnv* env, int argc, const 
 static ERL_NIF_TERM GetExampleNumberForNonGeoEntity_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     int code;
-    if (!enif_get_int(env, argv[0], &code)) {
+    if (!enif_get_int(env, argv[0], &code))
         return enif_make_badarg(env);
-    }
 
     PhoneNumber phoneNumber;
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
-    bool result = phone_util_->GetExampleNumberForNonGeoEntity(code, &phoneNumber);
 
-    if (result){
-        return enif_make_phonenumber(env, phoneNumber);
-    }
+    if (phone_util_->GetExampleNumberForNonGeoEntity(code, &phoneNumber))
+        return phonenumber_to_term(env, phoneNumber);
 
     return ATOMS.atomFalse;
 }
@@ -1066,14 +1013,12 @@ static ERL_NIF_TERM GetExampleNumberForNonGeoEntity_nif(ErlNifEnv* env, int argc
 static ERL_NIF_TERM Parse_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary numberToParse;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &numberToParse)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &numberToParse))
         return enif_make_badarg(env);
-    }
 
     ErlNifBinary defaultRegion;
-    if (!enif_inspect_iolist_as_binary(env, argv[1], &defaultRegion)){
+    if (!enif_inspect_iolist_as_binary(env, argv[1], &defaultRegion))
         return enif_make_badarg(env);
-    }
 
     PhoneNumber phoneNumber;
 
@@ -1082,20 +1027,18 @@ static ERL_NIF_TERM Parse_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
     std::string number_to_parse( (char*) numberToParse.data, numberToParse.size);
     phone_util_->Parse(number_to_parse, region_code, &phoneNumber);
 
-    return enif_make_phonenumber(env, phoneNumber);
+    return phonenumber_to_term(env, phoneNumber);
 }
 
 static ERL_NIF_TERM ParseAndKeepRawInput_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary numberToParse;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &numberToParse)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &numberToParse))
         return enif_make_badarg(env);
-    }
 
     ErlNifBinary defaultRegion;
-    if (!enif_inspect_iolist_as_binary(env, argv[1], &defaultRegion)){
+    if (!enif_inspect_iolist_as_binary(env, argv[1], &defaultRegion))
         return enif_make_badarg(env);
-    }
 
     PhoneNumber phoneNumber;
 
@@ -1104,67 +1047,62 @@ static ERL_NIF_TERM ParseAndKeepRawInput_nif(ErlNifEnv* env, int argc, const ERL
     std::string number_to_parse( (char*) numberToParse.data, numberToParse.size);
     phone_util_->ParseAndKeepRawInput(number_to_parse, region_code, &phoneNumber);
 
-    return enif_make_phonenumber(env, phoneNumber);
+    return phonenumber_to_term(env, phoneNumber);
 }
 
 static ERL_NIF_TERM IsNumberMatch_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber1;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber1)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber1))
         return enif_make_badarg(env);
-    }
 
     PhoneNumber phoneNumber2;
-    if (!enif_inspect_phonenumber(env, argv[1], &phoneNumber2)){
+    if (!term_to_phonenumber(env, argv[1], &phoneNumber2))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     PhoneNumberUtil::MatchType match_type = phone_util_->IsNumberMatch(phoneNumber1, phoneNumber2);
 
-    return enif_make_phonenumber_match_type(match_type);
+    return phonenumber_match_type_to_term(match_type);
 }
 
 static ERL_NIF_TERM IsNumberMatchWithTwoStrings_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ErlNifBinary nifFirstNumber;
-    if (!enif_inspect_iolist_as_binary(env, argv[0], &nifFirstNumber)){
+    if (!enif_inspect_iolist_as_binary(env, argv[0], &nifFirstNumber))
         return enif_make_badarg(env);
-    }
 
     ErlNifBinary nifSecondNumber;
-    if (!enif_inspect_iolist_as_binary(env, argv[1], &nifSecondNumber)){
+    if (!enif_inspect_iolist_as_binary(env, argv[1], &nifSecondNumber))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string first_number( (char*) nifFirstNumber.data, nifFirstNumber.size);
     std::string second_number( (char*) nifSecondNumber.data, nifSecondNumber.size);
     PhoneNumberUtil::MatchType match_type =phone_util_->IsNumberMatchWithTwoStrings(first_number, second_number);
 
-    return enif_make_phonenumber_match_type(match_type);
+    return phonenumber_match_type_to_term(match_type);
 }
 
 static ERL_NIF_TERM IsNumberMatchWithOneString_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     PhoneNumber phoneNumber1;
-    if (!enif_inspect_phonenumber(env, argv[0], &phoneNumber1)){
+    if (!term_to_phonenumber(env, argv[0], &phoneNumber1))
         return enif_make_badarg(env);
-    }
 
     ErlNifBinary nifSecondNumber;
-    if (!enif_inspect_iolist_as_binary(env, argv[1], &nifSecondNumber)){
+    if (!enif_inspect_iolist_as_binary(env, argv[1], &nifSecondNumber))
         return enif_make_badarg(env);
-    }
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string second_number( (char*) nifSecondNumber.data, nifSecondNumber.size);
     PhoneNumberUtil::MatchType match_type = phone_util_->IsNumberMatchWithOneString(phoneNumber1, second_number);
 
-    return enif_make_phonenumber_match_type(match_type);
+    return phonenumber_match_type_to_term(match_type);
 }
 
-static ErlNifFunc nif_funcs[] = {
+static ErlNifFunc nif_funcs[] =
+{
     {"get_supported_regions", 0, GetSupportedRegions_nif},
     {"is_alpha_number", 1, IsAlphaNumber_nif},
     {"convert_alpha_characters_in_number", 1, ConvertAlphaCharactersInNumber_nif},
