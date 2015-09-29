@@ -19,6 +19,7 @@ install_libphonenumber()
 	cmake -DCMAKE_INSTALL_PREFIX:PATH=install  ..
 	make
 	make install
+	mkdir -p ../../../../priv
 	cp install/lib/libphonenumber.so ../../../../priv/libphonenumber.so
 	popd
 }

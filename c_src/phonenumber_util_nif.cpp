@@ -1,6 +1,6 @@
 #include <erl_nif.h>
-#include <phonenumberutil.h>
-#include <phonenumber.pb.h>
+#include <phonenumbers/phonenumberutil.h>
+#include <phonenumbers/phonenumber.pb.h>
 #include <memory>
 #include <iostream>
 #include <set>
