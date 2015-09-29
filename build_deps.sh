@@ -14,13 +14,13 @@ install_libphonenumber()
 
 	mkdir -p libphonenumber/cpp/build
 	pushd libphonenumber/cpp/build
-	#export CFLAGS=-fPIC
-    #export CXXFLAGS=-fPIC
+	export CFLAGS=-fPIC
+    export CXXFLAGS=-fPIC
 	cmake -DCMAKE_INSTALL_PREFIX:PATH=install  ..
 	make
 	make install
-	mkdir -p ../../../../priv
-	cp install/lib/libphonenumber.so ../../../../priv/libphonenumber.so
+	#mkdir -p ../../../../priv
+	#cp install/lib/*.so ../../../../priv/
 	popd
 }
 
