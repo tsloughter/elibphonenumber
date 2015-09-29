@@ -2,6 +2,11 @@
 OS=$(uname -s)
 KERNEL=$(echo $(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 | awk '{print $1;}') | awk '{print $1;}')
 
+LIBPHONE_NUMBER_REPO=https://github.com/googlei18n/libphonenumber.git
+LIBPHONE_NUMBER_REV=$1
+
+echo "Use repo ${LIBPHONE_NUMBER_REPO} and revision ${LIBPHONE_NUMBER_REV}"
+
 ##echo $OS
 ##echo $KERNEL
 
