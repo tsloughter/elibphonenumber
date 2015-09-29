@@ -12,3 +12,9 @@ packages-frame.html
 phonenumber.html
 phonenumber_util.html
 stylesheet.css
+/.idea/
+/priv/
+/deps/
+*.iml
+*.cproject
+*.project
