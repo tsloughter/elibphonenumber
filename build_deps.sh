@@ -2,8 +2,8 @@
 OS=$(uname -s)
 KERNEL=$(echo $(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 | awk '{print $1;}') | awk '{print $1;}')
 
-LIBPHONE_NUMBER_REPO=https://github.com/googlei18n/libphonenumber.git
-LIBPHONE_NUMBER_REV=$1
+LIB_PHONE_NUMBER_REPO=$1
+LIB_PHONE_NUMBER_REV=$2
 
 echo "Use repo ${LIBPHONE_NUMBER_REPO} and revision ${LIBPHONE_NUMBER_REV}"
 
@@ -12,9 +12,9 @@ echo "Use repo ${LIBPHONE_NUMBER_REPO} and revision ${LIBPHONE_NUMBER_REV}"
 
 install_libphonenumber()
 {
-	git clone https://github.com/googlei18n/libphonenumber.git
+	git clone ${LIB_PHONE_NUMBER_REPO}
 	pushd libphonenumber
-	git checkout libphonenumber-7.0.11
+	git checkout ${LIB_PHONE_NUMBER_REV}
 	popd
 
 	mkdir -p libphonenumber/cpp/build
