@@ -7,8 +7,7 @@ Erlang port of [libphonenumber](https://github.com/googlei18n/libphonenumber)
 
 - This project is active. I'm doing updates very offen because I see the original author is no longer maintaining it.
 - In case you want to discuss about the project you can find me on [WowApp][1]
-
-To change the `libphonenumber` version mobify in rebar.config the argument sent to `build_deps.sh`
+- To change the `libphonenumber` version mobify in rebar.config the argument sent to `build_deps.sh`
 
 ## Compile
 
