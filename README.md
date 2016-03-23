@@ -21,6 +21,13 @@ For `Ubuntu` in case you are not running rebar with sudo you need to run at leas
     wget http://es.archive.ubuntu.com/ubuntu/pool/universe/r/re2/libre2-dev_20140304+dfsg-2_amd64.deb -O libre2-dev.deb
     sudo dpkg -i libre2*.deb
     sudo apt-get install cmake cmake-curses-gui libprotobuf-dev libgtest-dev libre2-dev libicu-dev libboost-dev libboost-thread-dev libboost-system-dev protobuf-compiler
+    
+Also you need to use cmake 3.x so you need to :
+    
+    sudo apt-get remove cmake cmake-data
+    sudo -E add-apt-repository -y ppa:george-edison55/cmake-3.x
+    sudo -E apt-get update
+    sudo apt-get install cmake
 
 ## Run the tests
 
