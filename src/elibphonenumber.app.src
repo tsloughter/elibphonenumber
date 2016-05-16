@@ -1,11 +1,7 @@
-{application, elibphonenumber,
- [
-  {description, "Port driver for libphonenumber"},
-  {vsn, git},
-  {registered, []},
-  {applications, [
-                  kernel,
-                  stdlib
-                 ]},
-  {env, []}
- ]}.
+{application, elibphonenumber, [
+    {description, "Port driver for libphonenumber"},
+    {vsn, "7.4.0"},
+    {registered, []},
+    {applications, [kernel, stdlib]},
+    {env, []}
+]}.
