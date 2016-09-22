@@ -7,3 +7,4 @@ ebin
 .cproject
 .project
 /.rebar/
+/.eunit/
