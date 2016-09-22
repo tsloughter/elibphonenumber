@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
+
+DEPS_LOCATION=_build/deps
+
+if [ -d "$DEPS_LOCATION/$DESTINATION" ]; then
+    echo "libphonenumber fork already exist. delete $DEPS_LOCATION for a fresh checkout."
+    exit 0
+fi
+
+
 OS=$(uname -s)
 KERNEL=$(echo $(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 | awk '{print $1;}') | awk '{print $1;}')
 
-LIB_PHONE_NUMBER_REPO=$1
-LIB_PHONE_NUMBER_REV=$2
+LIB_PHONE_NUMBER_REPO=https://github.com/googlei18n/libphonenumber.git
+LIB_PHONE_NUMBER_REV=$1
 
 echo "Use repo ${LIBPHONE_NUMBER_REPO} and revision ${LIBPHONE_NUMBER_REV}"
 
@@ -24,13 +33,11 @@ install_libphonenumber()
 	cmake -DCMAKE_INSTALL_PREFIX:PATH=install  ..
 	make
 	make install
-	#mkdir -p ../../../../priv
-	#cp install/lib/*.so ../../../../priv/
 	popd
 }
 
-mkdir -p deps
-pushd deps
+mkdir -p $DEPS_LOCATION
+pushd $DEPS_LOCATION
 
 case $OS in
   Linux)
