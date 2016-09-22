@@ -31,7 +31,7 @@ install_libphonenumber()
 	export CFLAGS=-fPIC
     export CXXFLAGS=-fPIC
 	cmake -DCMAKE_INSTALL_PREFIX:PATH=install  ..
-	make
+	make -j 8
 	make install
 	popd
 }
