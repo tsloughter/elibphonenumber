@@ -1,7 +1,8 @@
 {application, elibphonenumber, [
     {description, "Port driver for libphonenumber"},
-    {vsn, "7.4.0"},
+    {vsn, "8.4.0"},
     {registered, []},
-    {applications, [kernel, stdlib]},
+    {applications, [kernel, stdlib, trie]},
+    {mod, {elibphonenumber, []}},
     {env, []}
 ]}.

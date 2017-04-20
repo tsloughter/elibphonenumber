@@ -87,6 +87,8 @@ install_libphonenumber()
 
 copy_resources()
 {
+    rm -rf priv
+    fail_check mkdir priv
     fail_check cp -R $DEPS_LOCATION/libphonenumber/resources/carrier priv/carrier
 }
 
@@ -130,5 +132,4 @@ esac
 
 popd
 
-mkdir priv
 copy_resources

@@ -32,8 +32,18 @@ Also you need to use cmake 3.x so you need to :
     sudo -E apt-get update
     sudo apt-get install cmake
 
+## Get carrier for number
+    
+In order to do this make sure the application is started then use `phonenumber_to_carrier:carrier_for_number/2` method    
+    
+```erlang 
+application:ensure_all_started(elibphonenumber).
+phonenumber_to_carrier:carrier_for_number(<<"44743655551">>, <<"en">>).
+```    
+
 ## Run the tests
 
 ```sh
 rebar compile eunit
 ```
+
