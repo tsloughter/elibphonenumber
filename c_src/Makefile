@@ -12,8 +12,7 @@ ifeq ($(UNAME_SYS), darwin)
 	PROTO_VERSION_CMD := $(shell ls $(PROTO_PATH))
 	PROTO_VERSION := $(shell echo $(PROTO_VERSION_CMD) | awk '{print $0}')
 
-	CXXFLAGS += -I $(PROTO_PATH)/$(PROTO_VERSION)/include \
-				-Wno-deprecated-declarations -Wno-switch
+	CXXFLAGS += -I $(PROTO_PATH)/$(PROTO_VERSION)/include
 
 	LDFLAGS +=  -L/usr/local/lib/ \
 				-L$(ICU_PATH)/$(ICU_VERSION)/lib \
@@ -37,7 +36,7 @@ else
 				-lboost_thread
 endif
 
-CXXFLAGS +=  -fPIC -g -Wextra -Werror -fno-exceptions -Wno-missing-field-initializers -Wno-unused-parameter \
+CXXFLAGS +=  -fPIC -g -Wextra -Werror -fno-exceptions -Wno-missing-field-initializers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-switch \
  		     -I $(BASEDIR)/_build/deps/libphonenumber/cpp/build/install/include  \
  		     -DI18N_PHONENUMBERS_NO_THREAD_SAFETY
 
