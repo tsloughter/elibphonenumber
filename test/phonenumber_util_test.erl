@@ -398,12 +398,7 @@ is_possible_number_with_reason_test() ->
     P11 = phonenumber:set_country_code(1, P1),
     P12 = phonenumber:set_national_number(6502530000, P11),
     is_possible = phonenumber_util:is_possible_number_with_reason(P12), 
-
-    P2 = phonenumber:new(),
-    P21 = phonenumber:set_country_code(1, P2),
-    P22 = phonenumber:set_national_number(2530000, P21),
-    is_possible = phonenumber_util:is_possible_number_with_reason(P22),  
-
+    
     P3 = phonenumber:new(),
     P31 = phonenumber:set_country_code(0, P3),
     P32 = phonenumber:set_national_number(2530000, P31),
