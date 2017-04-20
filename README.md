@@ -1,9 +1,9 @@
 elibphonenumber
 ===============
 
-Erlang port of [libphonenumber](https://github.com/googlei18n/libphonenumber)
+Erlang port of [libphonenumber][1]
 
-##Note
+## Notes
 
 - This project is active. I'm doing updates very offen because I see the original author is no longer maintaining it.
 - Compatible with both `rebar` and `rebar3`
@@ -47,3 +47,4 @@ phonenumber_to_carrier:carrier_for_number(<<"44743655551">>, <<"en">>).
 rebar compile eunit
 ```
 
+[1]: https://github.com/googlei18n/libphonenumber
