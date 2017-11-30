@@ -28,8 +28,8 @@ function fail_check
 
 qmake_unix()
 {
-    export CFLAGS=-fPIC
-    export CXXFLAGS=-fPIC
+    export CFLAGS="-fPIC -Wno-deprecated-declarations"
+    export CXXFLAGS="-fPIC -Wno-deprecated-declarations"
 	cmake -DCMAKE_INSTALL_PREFIX:PATH=install  ..
 }
 
@@ -58,7 +58,7 @@ qmake_darwin()
 
 install_libphonenumber()
 {
-	fail_check git clone ${LIB_PHONE_NUMBER_REPO} ${DESTINATION}
+	git clone ${LIB_PHONE_NUMBER_REPO} ${DESTINATION}
 	pushd ${DESTINATION}
 	fail_check git checkout ${LIB_PHONE_NUMBER_REV}
 	popd

@@ -36,12 +36,11 @@ else
 				-lboost_thread
 endif
 
-CXXFLAGS +=  -fPIC -g -Wextra -Werror -fno-exceptions -Wno-missing-field-initializers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-switch \
+CXXFLAGS +=  -fPIC -g -Wextra -Werror -std=c++11 -fno-exceptions -Wno-missing-field-initializers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-switch \
  		     -I $(BASEDIR)/_build/deps/libphonenumber/cpp/build/install/include  \
  		     -DI18N_PHONENUMBERS_NO_THREAD_SAFETY
 
 LDFLAGS +=  -L$(BASEDIR)/_build/deps/libphonenumber/cpp/build/install/lib/ \
-			-lstdc++ \
 			-lboost_system \
 			-lboost_date_time \
 			-licui18n \
