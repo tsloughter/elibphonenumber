@@ -43,7 +43,7 @@ qmake_darwin()
     echo "ICU_VERSION=${ICU_VERSION}"
 
     export CFLAGS="-fPIC -Wno-deprecated-declarations"
-    export CXXFLAGS="-fPIC -Wno-deprecated-declarations"
+    export CXXFLAGS="-fPIC -Wno-deprecated-declarations -std=c++11"
 
 	fail_check cmake -DCMAKE_INSTALL_PREFIX:PATH=install \
 	      -DGTEST_SOURCE_DIR=../../../googletest/googletest/ \
@@ -112,7 +112,7 @@ run_installation()
             brew install boost cmake icu4c pkg-config protobuf wget
             git clone https://github.com/google/googletest.git
             install_libphonenumber
-            pushd ${DESTINATION}/cpp/build/install/lib
+            pushd ${DESTINATION}/cpp/build
             rm -rf *.dylib
             popd
             ;;

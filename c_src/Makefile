@@ -18,6 +18,7 @@ ifeq ($(UNAME_SYS), darwin)
 				-L$(ICU_PATH)/$(ICU_VERSION)/lib \
 			    -lphonenumber \
 				-lboost_thread-mt \
+				-lstdc++ \
 			    -Wl,-U,_enif_make_new_binary \
 				-Wl,-U,_enif_make_tuple \
 				-Wl,-U,_enif_make_ulong \
@@ -40,7 +41,7 @@ CXXFLAGS +=  -fPIC -g -Wextra -Werror -std=c++11 -fno-exceptions -Wno-missing-fi
  		     -I $(BASEDIR)/_build/deps/libphonenumber/cpp/build/install/include  \
  		     -DI18N_PHONENUMBERS_NO_THREAD_SAFETY
 
-LDFLAGS +=  -L$(BASEDIR)/_build/deps/libphonenumber/cpp/build/install/lib/ \
+LDFLAGS +=  -L$(BASEDIR)/_build/deps/libphonenumber/cpp/build \
 			-lboost_system \
 			-lboost_date_time \
 			-licui18n \
