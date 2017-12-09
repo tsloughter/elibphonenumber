@@ -89,11 +89,14 @@ copy_resources()
 {
     rm -rf priv
     fail_check mkdir priv
-    fail_check cp -R libphonenumber/resources/carrier priv/carrier
+    fail_check cp -R $DEPS_LOCATION/$DESTINATION/resources/carrier priv/carrier
 }
 
 run_installation()
 {
+	mkdir -p $DEPS_LOCATION
+	pushd $DEPS_LOCATION
+
     case $OS in
       Linux)
          case $KERNEL in
@@ -120,12 +123,9 @@ run_installation()
             echo "Your system $OS is not supported"
             exit 1
     esac
-}
 
-mkdir -p $DEPS_LOCATION
-pushd $DEPS_LOCATION
+    popd
+}
 
 run_installation
 copy_resources
-
-popd
