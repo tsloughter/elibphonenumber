@@ -30,7 +30,7 @@ qmake_unix()
 {
     export CFLAGS="-fPIC -Wno-deprecated-declarations"
     export CXXFLAGS="-fPIC -Wno-deprecated-declarations"
-	cmake -DCMAKE_INSTALL_PREFIX:PATH=install  ..
+	fail_check cmake -DCMAKE_INSTALL_PREFIX:PATH=install  ..
 }
 
 qmake_darwin()
