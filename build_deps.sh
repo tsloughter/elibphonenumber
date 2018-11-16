@@ -100,11 +100,17 @@ run_installation()
     case $OS in
       Linux)
          case $KERNEL in
-            Ubuntu)
-                echo "Check Dependecies for Ubuntu"
+            Ubuntu|Debian)
+                echo "Check Dependecies for $KERNEL"
                 fail_check dpkg -s  cmake cmake-curses-gui libgtest-dev libre2-dev libicu-dev \
                                     libboost-dev libboost-thread-dev libboost-system-dev \
                                     protobuf-compiler libprotobuf-dev
+                install_libphonenumber
+                ;;
+            CentOS)
+                echo "Check Dependecies for $KERNEL"
+                fail_check rpm -q --dump cmake gtest-devel re2-devel libicu-devel \
+                                    boost-devel protobuf-compiler protobuf-devel
                 install_libphonenumber
                 ;;
             *)

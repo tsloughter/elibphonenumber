@@ -39,6 +39,28 @@ wget http://es.archive.ubuntu.com/ubuntu/pool/universe/r/re2/libre2-dev_20140304
 sudo dpkg -i libre2*.deb
 ```
 
+##### Debian 9 (Stretch)
+
+The same as for Ubuntu
+
+```bash
+sudo apt-get install cmake cmake-curses-gui libgtest-dev libre2-dev libicu-dev 
+sudo apt-get install libboost-dev libboost-thread-dev libboost-system-dev
+sudo apt-get install libprotobuf-dev protobuf-compiler
+```
+
+##### CentOS 7
+
+Enable [EPEL][3] (for RE2 & gtest):
+```bash
+sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+```
+
+And install packages:
+```bash
+sudo yum install cmake git boost-devel gtest-devel libicu-devel protobuf-devel protobuf-compiler re2-devel
+```
+
 ##### Mac Os
 
 On `Mac OS` make sure you have `brew` installed and rebar will automatically install all necessary dependencies.
@@ -60,3 +82,4 @@ rebar compile eunit
 
 [1]: https://github.com/googlei18n/libphonenumber
 [2]: https://github.com/googlei18n/libphonenumber/blob/master/cpp/README
+[3]: https://fedoraproject.org/wiki/EPEL#Quickstart
