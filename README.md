@@ -1,5 +1,6 @@
 elibphonenumber
 ===============
+[![Build Status](https://travis-ci.org/silviucpp/elibphonenumber.svg?branch=master)](https://travis-ci.org/silviucpp/elibphonenumber)
 
 Erlang port of [libphonenumber][1]
 
