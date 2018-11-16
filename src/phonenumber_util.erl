@@ -61,7 +61,7 @@ init() ->
     end.
 
 priv_dir() ->
-    case code:priv_dir(libphonenumber) of
+    case code:priv_dir(elibphonenumber) of
         PrivDir when is_list(PrivDir) ->
             PrivDir;
         {error, bad_name} ->

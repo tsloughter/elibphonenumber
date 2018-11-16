@@ -77,7 +77,7 @@ phonenumber_to_carrier:carrier_for_number(<<"44743655551">>, <<"en">>).
 ## Run the tests
 
 ```bash
-rebar compile eunit
+rebar3 eunit
 ```
 
 [1]: https://github.com/googlei18n/libphonenumber

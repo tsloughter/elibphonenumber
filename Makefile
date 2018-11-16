@@ -1,7 +1,16 @@
+.DEFAULT_GOAL := compile
 
-compile:
-	@./build_deps.sh $(TAG)
+REBAR=rebar3
+
+nif_compile:
+	@./build_deps.sh $(DRIVER_REV)
 	@make V=0 -C c_src -j 8
 
-clean:
+nif_clean:
 	@make -C c_src clean
+
+compile:
+	${REBAR} compile
+
+clean:
+	${REBAR} clean
