@@ -7,7 +7,7 @@ Erlang port of [libphonenumber][1]
 ## Notes
 
 - This project is active. I'm doing updates very offen because I see the original author is no longer maintaining it.
-- Compatible with both `rebar` and `rebar3`
+- Compatible with both `rebar` and `rebar3` or `hex`
 - To change the `libphonenumber` version modify in `rebar.config` the `TAG` argument sent to `make`
 
 ## Compile
