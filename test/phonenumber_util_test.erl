@@ -1,7 +1,7 @@
 -module(phonenumber_util_test).
 
--include("../include/libphonenumber.hrl").
 -include_lib("eunit/include/eunit.hrl").
+-include("libphonenumber.hrl").
 
 -define(INVALID_COUNTRY_CODE, 2).
 

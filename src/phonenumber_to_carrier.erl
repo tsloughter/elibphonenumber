@@ -1,15 +1,22 @@
 -module(phonenumber_to_carrier).
--author("silviu.caragea").
 
 -behaviour(gen_server).
 
 -define(PLUS_SIGN_DIGIT, 43).
 
--export([start_link/0, carrier_for_number/2]).
+-export([
+    start_link/0,
+    carrier_for_number/2,
 
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+    % gen_server
 
--define(SERVER, ?MODULE).
+    init/1,
+    handle_call/3,
+    handle_cast/2,
+    handle_info/2,
+    terminate/2,
+    code_change/3
+]).
 
 -record(state, {
     carrier_dict
@@ -22,7 +29,7 @@ carrier_for_number(Number, Lang) ->
     gen_server:call(?MODULE, {carrier_for_number, number_to_bin(Number), Lang}).
 
 init([]) ->
-    {ok, Path} = path(),
+    Path = elibphone_utils:get_priv_path(<<"carrier">>),
     {ok, AllLanguages0} = file:list_dir(Path),
 
     AllLanguages = lists:map(fun(X) -> list_to_binary(X) end, AllLanguages0),
@@ -38,9 +45,7 @@ init([]) ->
         end
     end,
 
-    Dict = lists:foldl(FunLang, dict:new(), AllLanguages),
-
-    {ok, #state{carrier_dict = Dict}}.
+    {ok, #state{carrier_dict = lists:foldl(FunLang, dict:new(), AllLanguages)}}.
 
 handle_call({carrier_for_number, Number, Lang}, _From, #state {carrier_dict = Dict} = State) ->
     Carrier = case dict:find(Lang, Dict) of
@@ -115,14 +120,6 @@ get_lines(Device, Accum) ->
                             get_lines(Device, Accum)
                     end
             end
-    end.
-
-path() ->
-    case code:priv_dir(elibphonenumber) of
-        {error, bad_name} = Error ->
-            Error;
-        Dir ->
-            {ok, list_to_binary(filename:join(Dir, "carrier"))}
     end.
 
 number_to_bin(Nr) when is_binary(Nr) ->
