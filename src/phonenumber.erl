@@ -1,8 +1,8 @@
 -module(phonenumber).
 
--include("../include/libphonenumber.hrl").
+-include("libphonenumber.hrl").
 
- -export([
+-export([
     new/0,
     has_country_code/1,
     get_country_code/1,
@@ -39,9 +39,10 @@
     clear/1,
     merge_from/2,
     exactly_same_as/2
-    ]).
+]).
 
--spec new() -> PhoneNumber::phonenumber().
+-spec new() ->
+    PhoneNumber::phonenumber().
 
 new() ->
     #phonenumber{
@@ -65,233 +66,231 @@ new() ->
 
 %% country_code
 
--spec has_country_code(PhoneNumber::phonenumber()) -> boolean().
+-spec has_country_code(PhoneNumber::phonenumber()) ->
+    boolean().
 
 has_country_code(#phonenumber{has_country_code=Value}) ->
     Value.
 
--spec get_country_code(PhoneNumber::phonenumber()) -> non_neg_integer().
+-spec get_country_code(PhoneNumber::phonenumber()) ->
+    non_neg_integer().
 
 get_country_code(#phonenumber{country_code=Value}) ->
     Value.
 
--spec set_country_code(
-    CountryCode::non_neg_integer(),
-    PhoneNumber::phonenumber()
-    ) -> NewPhoneNumber::phonenumber().
+-spec set_country_code(CountryCode::non_neg_integer(), PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-set_country_code(_CountryCode, #phonenumber{}=PhoneNumber) when is_integer(_CountryCode)  ->
-    PhoneNumber#phonenumber{has_country_code = true, country_code = _CountryCode};
+set_country_code(CountryCode, PhoneNumber) when is_integer(CountryCode)  ->
+    PhoneNumber#phonenumber{has_country_code = true, country_code = CountryCode};
 set_country_code(_CountryCode, #phonenumber{}=PhoneNumber) ->
     PhoneNumber.
 
--spec clear_country_code(PhoneNumber::phonenumber()) -> NewPhoneNumber::phonenumber().
+-spec clear_country_code(PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-clear_country_code(#phonenumber{}=PhoneNumber) -> 
+clear_country_code(PhoneNumber) ->
     PhoneNumber#phonenumber{has_country_code=false, country_code = 0}.
 
 %% national_number
 
--spec has_national_number(PhoneNumber::phonenumber()) -> boolean().
+-spec has_national_number(PhoneNumber::phonenumber()) ->
+    boolean().
 
 has_national_number(#phonenumber{has_national_number=Value}) ->
     Value.
 
--spec get_national_number(PhoneNumber::phonenumber()) -> non_neg_integer().
+-spec get_national_number(PhoneNumber::phonenumber()) ->
+    non_neg_integer().
 
 get_national_number(#phonenumber{national_number=Value}) ->
     Value.
 
--spec set_national_number(
-    NationalNumber::non_neg_integer(),
-    PhoneNumber::phonenumber()
-    ) -> NewPhoneNumber::phonenumber().
+-spec set_national_number(NationalNumber::non_neg_integer(), PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-set_national_number(_NationalNumber, #phonenumber{}=PhoneNumber) when is_integer(_NationalNumber) ->
-    PhoneNumber#phonenumber{has_national_number=true, national_number = _NationalNumber};
+set_national_number(NationalNumber, PhoneNumber) when is_integer(NationalNumber) ->
+    PhoneNumber#phonenumber{has_national_number=true, national_number = NationalNumber};
 set_national_number(_NationalNumber, #phonenumber{}=PhoneNumber) ->
     PhoneNumber.
 
--spec clear_national_number(PhoneNumber::phonenumber()) -> NewPhoneNumber::phonenumber().
+-spec clear_national_number(PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-clear_national_number(#phonenumber{}=PhoneNumber) -> 
+clear_national_number(PhoneNumber) ->
     PhoneNumber#phonenumber{has_national_number=false, national_number = 0}.
 
 %% extension
 
--spec has_extension(PhoneNumber::phonenumber()) -> boolean().
+-spec has_extension(PhoneNumber::phonenumber()) ->
+    boolean().
 
 has_extension(#phonenumber{has_extension=Value}) ->
     Value.
 
--spec get_extension(PhoneNumber::phonenumber()) -> binary().
+-spec get_extension(PhoneNumber::phonenumber()) ->
+    binary().
 
-get_extension(#phonenumber{}=PhoneNumber) ->
-    PhoneNumber#phonenumber.extension.
+get_extension(#phonenumber{extension = Ext}) ->
+    Ext.
 
--spec set_extension(Extension::binary(), PhoneNumber::phonenumber()) -> NewPhoneNumber::phonenumber().
+-spec set_extension(Extension::binary(), PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-set_extension(_Extension, #phonenumber{}=PhoneNumber) ->
-    PhoneNumber#phonenumber{has_extension = true, extension = _Extension}.
+set_extension(Extension, PhoneNumber) ->
+    PhoneNumber#phonenumber{has_extension = true, extension = Extension}.
 
--spec clear_extension(PhoneNumber::phonenumber()) -> NewPhoneNumber::phonenumber().
+-spec clear_extension(PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-clear_extension(#phonenumber{}=PhoneNumber) ->
+clear_extension(PhoneNumber) ->
     PhoneNumber#phonenumber{has_extension=false, extension = <<>>}.
 
 %% italian leading zero
 
--spec has_italian_leading_zero(PhoneNumber::phonenumber()) -> boolean().
+-spec has_italian_leading_zero(PhoneNumber::phonenumber()) ->
+    boolean().
 
 has_italian_leading_zero(#phonenumber{has_italian_leading_zero=Value}) ->
     Value.
 
--spec is_italian_leading_zero(PhoneNumber::phonenumber()) -> boolean().
+-spec is_italian_leading_zero(PhoneNumber::phonenumber()) ->
+    boolean().
 
 is_italian_leading_zero(#phonenumber{italian_leading_zero=Value}) ->
     Value.
 
--spec set_italian_leading_zero(
-    ItalianLeadingZero::boolean(),
-    PhoneNumber::phonenumber()
-    ) -> NewPhoneNumber::phonenumber().
+-spec set_italian_leading_zero(ItalianLeadingZero::boolean(), PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-set_italian_leading_zero(_ItalianLeadingZero, #phonenumber{}=PhoneNumber) ->
-    PhoneNumber#phonenumber{
-        has_italian_leading_zero = true,
-        italian_leading_zero = _ItalianLeadingZero}.
+set_italian_leading_zero(ItalianLeadingZero, PhoneNumber) ->
+    PhoneNumber#phonenumber{has_italian_leading_zero = true, italian_leading_zero = ItalianLeadingZero}.
 
--spec clear_italian_leading_zero(PhoneNumber::phonenumber()) -> NewPhoneNumber::phonenumber().
+-spec clear_italian_leading_zero(PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-clear_italian_leading_zero(#phonenumber{}=PhoneNumber) -> 
-    PhoneNumber#phonenumber{
-        has_italian_leading_zero = false,
-        italian_leading_zero = false}.
+clear_italian_leading_zero(PhoneNumber) ->
+    PhoneNumber#phonenumber{has_italian_leading_zero = false, italian_leading_zero = false}.
 
 %% number of leading zeros
 
--spec has_number_of_leading_zeros(PhoneNumber::phonenumber()) -> boolean().
+-spec has_number_of_leading_zeros(PhoneNumber::phonenumber()) ->
+    boolean().
 
 has_number_of_leading_zeros(#phonenumber{has_number_of_leading_zeros=Value}) ->
     Value.
 
--spec get_number_of_leading_zeros(PhoneNumber::phonenumber()) -> non_neg_integer().
+-spec get_number_of_leading_zeros(PhoneNumber::phonenumber()) ->
+    non_neg_integer().
 
 get_number_of_leading_zeros(#phonenumber{number_of_leading_zeros=Value}) ->
     Value.
 
--spec set_number_of_leading_zeros(
-    NumberOfLeadingZeros::non_neg_integer(),
-    PhoneNumber::phonenumber()
-    ) -> NewPhoneNumber::phonenumber().
+-spec set_number_of_leading_zeros(NumberOfLeadingZeros::non_neg_integer(), PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-set_number_of_leading_zeros(_NumberOfLeadingZeros, #phonenumber{}=PhoneNumber) ->
-    PhoneNumber#phonenumber{
-        has_number_of_leading_zeros = true,
-        number_of_leading_zeros = _NumberOfLeadingZeros}.
+set_number_of_leading_zeros(NumberOfLeadingZeros, PhoneNumber) ->
+    PhoneNumber#phonenumber{has_number_of_leading_zeros = true, number_of_leading_zeros = NumberOfLeadingZeros}.
 
--spec clear_number_of_leading_zeros(PhoneNumber::phonenumber()) -> NewPhoneNumber::phonenumber().
+-spec clear_number_of_leading_zeros(PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-clear_number_of_leading_zeros(#phonenumber{}=PhoneNumber) -> 
+clear_number_of_leading_zeros(PhoneNumber) ->
     PhoneNumber#phonenumber{has_number_of_leading_zeros = false, number_of_leading_zeros = 1}.
 
 %% raw imput
 
--spec has_raw_input(PhoneNumber::phonenumber()) -> boolean().
+-spec has_raw_input(PhoneNumber::phonenumber()) ->
+    boolean().
 
 has_raw_input(#phonenumber{has_raw_input=Value}) ->
     Value.
 
--spec get_raw_input(PhoneNumber::phonenumber()) -> binary().
+-spec get_raw_input(PhoneNumber::phonenumber()) ->
+    binary().
 
 get_raw_input(#phonenumber{raw_input=Value}) ->
     Value.
 
--spec set_raw_input(RawInput::binary(), PhoneNumber::phonenumber()) -> NewPhoneNumber::phonenumber().
+-spec set_raw_input(RawInput::binary(), PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-set_raw_input(_RawInput, #phonenumber{}=PhoneNumber) ->
-    PhoneNumber#phonenumber{has_raw_input=true, raw_input = _RawInput}.
+set_raw_input(RawInput, PhoneNumber) ->
+    PhoneNumber#phonenumber{has_raw_input=true, raw_input = RawInput}.
 
--spec clear_raw_input(PhoneNumber::phonenumber()) -> NewPhoneNumber::phonenumber().
+-spec clear_raw_input(PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-clear_raw_input(#phonenumber{}=PhoneNumber) ->
+clear_raw_input(PhoneNumber) ->
     PhoneNumber#phonenumber{has_raw_input=false, raw_input = <<>>}.
 
 %% country code source
 
--spec has_country_code_source(PhoneNumber::phonenumber()) -> boolean().
+-spec has_country_code_source(PhoneNumber::phonenumber()) ->
+    boolean().
 
 has_country_code_source(#phonenumber{has_country_code_source=Value}) ->
     Value.
 
--spec get_country_code_source(PhoneNumber::phonenumber()) -> phonenumber_country_code_source().
+-spec get_country_code_source(PhoneNumber::phonenumber()) ->
+    phonenumber_country_code_source().
 
 get_country_code_source(#phonenumber{country_code_source=Value}) ->
     Value.
 
--spec set_country_code_source(
-    CountryCodeSource::phonenumber_country_code_source(),
-    PhoneNumber::phonenumber()
-    ) -> NewPhoneNumber::phonenumber().
+-spec set_country_code_source(CountryCodeSource::phonenumber_country_code_source(), PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-set_country_code_source(CountryCodeSource, #phonenumber{}=PhoneNumber) ->
-    PhoneNumber#phonenumber{
-        has_country_code_source=true, 
-        country_code_source = CountryCodeSource}.
+set_country_code_source(CountryCodeSource, PhoneNumber) ->
+    PhoneNumber#phonenumber{has_country_code_source=true, country_code_source = CountryCodeSource}.
 
--spec clear_country_code_source(PhoneNumber::phonenumber()) -> NewPhoneNumber::phonenumber().
+-spec clear_country_code_source(PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-clear_country_code_source(#phonenumber{}=PhoneNumber) ->
-    PhoneNumber#phonenumber{
-        has_country_code_source=false, 
-        country_code_source = from_number_with_plus_sign}.
+clear_country_code_source(PhoneNumber) ->
+    PhoneNumber#phonenumber{has_country_code_source=false, country_code_source = from_number_with_plus_sign}.
 
 %% preferred domestic carrier code
 
--spec has_preferred_domestic_carrier_code(PhoneNumber::phonenumber()) -> boolean().
+-spec has_preferred_domestic_carrier_code(PhoneNumber::phonenumber()) ->
+    boolean().
 
 has_preferred_domestic_carrier_code(#phonenumber{has_preferred_domestic_carrier_code=Value}) ->
     Value.
 
--spec get_preferred_domestic_carrier_code(PhoneNumber::phonenumber()) -> binary().
+-spec get_preferred_domestic_carrier_code(PhoneNumber::phonenumber()) ->
+    binary().
 
 get_preferred_domestic_carrier_code(#phonenumber{preferred_domestic_carrier_code=Value}) ->
     Value.
 
--spec set_preferred_domestic_carrier_code(
-    PreferredDomesticCarrierCode::binary(),
-    PhoneNumber::phonenumber()
-    ) -> NewPhoneNumber::phonenumber().
+-spec set_preferred_domestic_carrier_code(PreferredDomesticCarrierCode::binary(), PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-set_preferred_domestic_carrier_code(_PreferredDomesticCarrierCode, #phonenumber{}=PhoneNumber) ->
-    PhoneNumber#phonenumber{
-        has_preferred_domestic_carrier_code = true,
-        preferred_domestic_carrier_code = _PreferredDomesticCarrierCode
-    }.
+set_preferred_domestic_carrier_code(PreferredDomesticCarrierCode, PhoneNumber) ->
+    PhoneNumber#phonenumber{has_preferred_domestic_carrier_code = true, preferred_domestic_carrier_code = PreferredDomesticCarrierCode}.
 
--spec clear_preferred_domestic_carrier_code(PhoneNumber::phonenumber()) -> NewPhoneNumber::phonenumber().
+-spec clear_preferred_domestic_carrier_code(PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-clear_preferred_domestic_carrier_code(#phonenumber{}=PhoneNumber) ->
-    PhoneNumber#phonenumber{
-        has_preferred_domestic_carrier_code=false,
-        preferred_domestic_carrier_code = <<>>}.
+clear_preferred_domestic_carrier_code(PhoneNumber) ->
+    PhoneNumber#phonenumber{has_preferred_domestic_carrier_code=false, preferred_domestic_carrier_code = <<>>}.
 
 %% clear
 
--spec clear(PhoneNumber::phonenumber()) -> NewPhoneNumber::phonenumber().
+-spec clear(PhoneNumber::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
 clear(#phonenumber{}) ->
     new().
 
--spec merge_from(
-    PhoneNumberFrom::phonenumber(),
-    PhoneNumberTo::phonenumber()
-    ) -> NewPhoneNumber::phonenumber().
+-spec merge_from(PhoneNumberFrom::phonenumber(), PhoneNumberTo::phonenumber()) ->
+    NewPhoneNumber::phonenumber().
 
-merge_from(#phonenumber{}=PhoneNumberFrom, #phonenumber{}=PhoneNumberTo) ->
+merge_from(PhoneNumberFrom, PhoneNumberTo) ->
     Step1 = if PhoneNumberFrom#phonenumber.has_country_code ->
         set_country_code(PhoneNumberFrom#phonenumber.country_code, PhoneNumberTo);
-        true -> PhoneNumberTo 
+        true -> PhoneNumberTo
     end,
     Step2 = if PhoneNumberFrom#phonenumber.has_national_number ->
         set_national_number(PhoneNumberFrom#phonenumber.national_number, Step1);
@@ -322,8 +321,8 @@ merge_from(#phonenumber{}=PhoneNumberFrom, #phonenumber{}=PhoneNumberTo) ->
         true -> Step7 
     end.
 
-
--spec exactly_same_as(PhoneNumber::phonenumber(), PhoneNumberOther::phonenumber()) -> boolean().
+-spec exactly_same_as(PhoneNumber::phonenumber(), PhoneNumberOther::phonenumber()) ->
+    boolean().
 
 exactly_same_as(#phonenumber{}=PhoneNumber, #phonenumber{}=PhoneNumberOther) ->
     PhoneNumber == PhoneNumberOther.
