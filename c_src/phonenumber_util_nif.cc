@@ -1,12 +1,14 @@
-#include <erl_nif.h>
 #include <phonenumbers/phonenumberutil.h>
 #include <phonenumbers/phonenumber.pb.h>
+#include <erl_nif.h>
 #include <memory>
 #include <iostream>
 #include <set>
 #include <string>
 
 using namespace i18n::phonenumbers;
+
+namespace {
 
 struct atoms
 {
@@ -61,52 +63,7 @@ ERL_NIF_TERM make_atom(ErlNifEnv* env, const char* name)
     return enif_make_atom(env, name);
 }
 
-int on_nif_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
-{
-	ATOMS.atomTrue = make_atom(env, "true");
-	ATOMS.atomFalse = make_atom(env, "false");
-
-	ATOMS.atomFixedLine = make_atom(env, "fixed_line");
-	ATOMS.atomMobile = make_atom(env, "mobile");
-	ATOMS.atomFixedLineOrMobile = make_atom(env, "fixed_line_or_mobile");
-	ATOMS.atomTollFree = make_atom(env, "toll_free");
-	ATOMS.atomPremiumRate = make_atom(env, "premium_rate");
-	ATOMS.atomSharedCost = make_atom(env, "shared_cost");
-	ATOMS.atomVoip = make_atom(env, "voip");
-	ATOMS.atomPersonalNumber = make_atom(env, "personal_number");
-	ATOMS.atomPager = make_atom(env, "pager");
-	ATOMS.atomUan = make_atom(env, "uan");
-	ATOMS.atomVoiceMail = make_atom(env, "voicemail");
-	ATOMS.atomUnknown = make_atom(env, "unknown");
-
-	ATOMS.atomIsPossible = make_atom(env, "is_possible");
-	ATOMS.atomInvalidContryCode = make_atom(env, "invalid_country_code");
-	ATOMS.atomTooShort = make_atom(env, "too_short");
-	ATOMS.atomTooLong = make_atom(env, "too_long");
-
-	ATOMS.atomFromNumberWithPlusSign = make_atom(env, "from_number_with_plus_sign");
-	ATOMS.atomFromNumberWithIdd = make_atom(env, "from_number_with_idd");
-	ATOMS.atomFromNumberWithoutPlusSign = make_atom(env, "from_number_without_plus_sign");
-	ATOMS.atomFromDefaultCountry = make_atom(env, "from_default_country");
-
-	ATOMS.atomInvalidNumber = make_atom(env, "invalid_number");
-	ATOMS.atomNoMatch = make_atom(env, "no_match");
-	ATOMS.atomShortNsmMatch = make_atom(env, "short_nsn_match");
-	ATOMS.atomNsmMatch = make_atom(env, "nsn_match");
-	ATOMS.atomExactMatch = make_atom(env, "exact_match");
-
-	ATOMS.atomFormatE164 = make_atom(env, "e164");
-	ATOMS.atomFormatInternational = make_atom(env, "international");
-	ATOMS.atomFormatNational = make_atom(env, "national");
-	ATOMS.atomFormatRFC3966 = make_atom(env, "rfc3966");
-
-	ATOMS.atomPhoneNumber = make_atom(env, "phonenumber");
-
-	*priv_data = NULL;
-	return 0;
-}
-
-static bool term_to_phonenumber_format(const ERL_NIF_TERM term, PhoneNumberUtil::PhoneNumberFormat* number_format)
+bool term_to_phonenumber_format(const ERL_NIF_TERM term, PhoneNumberUtil::PhoneNumberFormat* number_format)
 {
 	bool return_value = true;
 
@@ -124,7 +81,7 @@ static bool term_to_phonenumber_format(const ERL_NIF_TERM term, PhoneNumberUtil:
     return return_value;
 }
 
-static bool term_to_phonenumber_country_code_source(const ERL_NIF_TERM term, PhoneNumber::CountryCodeSource* country_code_source)
+bool term_to_phonenumber_country_code_source(const ERL_NIF_TERM term, PhoneNumber::CountryCodeSource* country_code_source)
 {
 	bool return_value = true;
 
@@ -142,7 +99,7 @@ static bool term_to_phonenumber_country_code_source(const ERL_NIF_TERM term, Pho
 	return return_value;
 }
 
-static bool term_to_phonenumber_type(const ERL_NIF_TERM term, PhoneNumberUtil::PhoneNumberType* type)
+bool term_to_phonenumber_type(const ERL_NIF_TERM term, PhoneNumberUtil::PhoneNumberType* type)
 {
 	bool return_value = true;
 
@@ -176,7 +133,7 @@ static bool term_to_phonenumber_type(const ERL_NIF_TERM term, PhoneNumberUtil::P
 	return return_value;
 }
 
-static bool term_to_boolean(const ERL_NIF_TERM term, bool* boolean)
+bool term_to_boolean(const ERL_NIF_TERM term, bool* boolean)
 {
 	if(enif_is_identical(term, ATOMS.atomTrue))
 	{
@@ -193,12 +150,12 @@ static bool term_to_boolean(const ERL_NIF_TERM term, bool* boolean)
 	return false;
 }
 
-static ERL_NIF_TERM boolean_to_term(bool boolean)
+inline ERL_NIF_TERM boolean_to_term(bool boolean)
 {
 	return boolean ? ATOMS.atomTrue : ATOMS.atomFalse;
 }
 
-static ERL_NIF_TERM phonenumber_type_to_term(PhoneNumberUtil::PhoneNumberType type)
+ERL_NIF_TERM phonenumber_type_to_term(PhoneNumberUtil::PhoneNumberType type)
 {
 	 switch(type)
 	 {
@@ -231,7 +188,7 @@ static ERL_NIF_TERM phonenumber_type_to_term(PhoneNumberUtil::PhoneNumberType ty
 	return ATOMS.atomUnknown;
 }
 
-static ERL_NIF_TERM phonenumber_validation_result_to_term(PhoneNumberUtil::ValidationResult validation_result)
+ERL_NIF_TERM phonenumber_validation_result_to_term(PhoneNumberUtil::ValidationResult validation_result)
 {
     switch(validation_result)
     {
@@ -248,7 +205,7 @@ static ERL_NIF_TERM phonenumber_validation_result_to_term(PhoneNumberUtil::Valid
     return ATOMS.atomInvalidContryCode;
 }
 
-static ERL_NIF_TERM phonenumber_country_code_source_to_term(ErlNifEnv* env, PhoneNumber::CountryCodeSource country_code_source)
+ERL_NIF_TERM phonenumber_country_code_source_to_term(ErlNifEnv* env, PhoneNumber::CountryCodeSource country_code_source)
 {
     switch(country_code_source)
     {
@@ -265,7 +222,7 @@ static ERL_NIF_TERM phonenumber_country_code_source_to_term(ErlNifEnv* env, Phon
     return ATOMS.atomFromDefaultCountry;
 }
 
-static ERL_NIF_TERM phonenumber_match_type_to_term(PhoneNumberUtil::MatchType match_type)
+ERL_NIF_TERM phonenumber_match_type_to_term(PhoneNumberUtil::MatchType match_type)
 {
     switch(match_type)
     {
@@ -284,7 +241,7 @@ static ERL_NIF_TERM phonenumber_match_type_to_term(PhoneNumberUtil::MatchType ma
     return ATOMS.atomInvalidNumber;
 }
 
-static ERL_NIF_TERM phonenumber_to_term(ErlNifEnv* env, PhoneNumber phoneNumber)
+ERL_NIF_TERM phonenumber_to_term(ErlNifEnv* env, PhoneNumber phoneNumber)
 {
     unsigned char *buffer;
     ERL_NIF_TERM raw_input;
@@ -311,7 +268,7 @@ static ERL_NIF_TERM phonenumber_to_term(ErlNifEnv* env, PhoneNumber phoneNumber)
     // optional int32 number_of_leading_zeros = 8 [default = 1];
     ERL_NIF_TERM has_number_of_leading_zeros = boolean_to_term(phoneNumber.has_number_of_leading_zeros());
     ERL_NIF_TERM number_of_leading_zeros = enif_make_int(env, phoneNumber.number_of_leading_zeros());
-    
+
     // optional string raw_input = 5;
     ERL_NIF_TERM has_raw_input = boolean_to_term(phoneNumber.has_raw_input());
     buffer = enif_make_new_binary(env, phoneNumber.raw_input().size(), &raw_input);
@@ -346,7 +303,7 @@ static ERL_NIF_TERM phonenumber_to_term(ErlNifEnv* env, PhoneNumber phoneNumber)
         preferred_domestic_carrier_code);
 }
 
-static bool term_to_phonenumber(ErlNifEnv* env, const ERL_NIF_TERM term, PhoneNumber* phoneNumber)
+bool term_to_phonenumber(ErlNifEnv* env, const ERL_NIF_TERM term, PhoneNumber* phoneNumber)
 {
     int integer;
     unsigned long longer; //FIXME should be unsingned long long
@@ -447,6 +404,53 @@ static bool term_to_phonenumber(ErlNifEnv* env, const ERL_NIF_TERM term, PhoneNu
     }
 
     return true;
+}
+
+}
+
+int on_nif_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
+{
+	ATOMS.atomTrue = make_atom(env, "true");
+	ATOMS.atomFalse = make_atom(env, "false");
+
+	ATOMS.atomFixedLine = make_atom(env, "fixed_line");
+	ATOMS.atomMobile = make_atom(env, "mobile");
+	ATOMS.atomFixedLineOrMobile = make_atom(env, "fixed_line_or_mobile");
+	ATOMS.atomTollFree = make_atom(env, "toll_free");
+	ATOMS.atomPremiumRate = make_atom(env, "premium_rate");
+	ATOMS.atomSharedCost = make_atom(env, "shared_cost");
+	ATOMS.atomVoip = make_atom(env, "voip");
+	ATOMS.atomPersonalNumber = make_atom(env, "personal_number");
+	ATOMS.atomPager = make_atom(env, "pager");
+	ATOMS.atomUan = make_atom(env, "uan");
+	ATOMS.atomVoiceMail = make_atom(env, "voicemail");
+	ATOMS.atomUnknown = make_atom(env, "unknown");
+
+	ATOMS.atomIsPossible = make_atom(env, "is_possible");
+	ATOMS.atomInvalidContryCode = make_atom(env, "invalid_country_code");
+	ATOMS.atomTooShort = make_atom(env, "too_short");
+	ATOMS.atomTooLong = make_atom(env, "too_long");
+
+	ATOMS.atomFromNumberWithPlusSign = make_atom(env, "from_number_with_plus_sign");
+	ATOMS.atomFromNumberWithIdd = make_atom(env, "from_number_with_idd");
+	ATOMS.atomFromNumberWithoutPlusSign = make_atom(env, "from_number_without_plus_sign");
+	ATOMS.atomFromDefaultCountry = make_atom(env, "from_default_country");
+
+	ATOMS.atomInvalidNumber = make_atom(env, "invalid_number");
+	ATOMS.atomNoMatch = make_atom(env, "no_match");
+	ATOMS.atomShortNsmMatch = make_atom(env, "short_nsn_match");
+	ATOMS.atomNsmMatch = make_atom(env, "nsn_match");
+	ATOMS.atomExactMatch = make_atom(env, "exact_match");
+
+	ATOMS.atomFormatE164 = make_atom(env, "e164");
+	ATOMS.atomFormatInternational = make_atom(env, "international");
+	ATOMS.atomFormatNational = make_atom(env, "national");
+	ATOMS.atomFormatRFC3966 = make_atom(env, "rfc3966");
+
+	ATOMS.atomPhoneNumber = make_atom(env, "phonenumber");
+
+	*priv_data = NULL;
+	return 0;
 }
 
 // NIF functions
