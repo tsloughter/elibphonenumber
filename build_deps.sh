@@ -107,7 +107,7 @@ run_installation()
                                     protobuf-compiler libprotobuf-dev
                 install_libphonenumber
                 ;;
-            CentOS)
+            CentOS|Amazon)
                 echo "Check Dependecies for $KERNEL"
                 fail_check rpm -q --dump cmake gtest-devel re2-devel libicu-devel \
                                     boost-devel protobuf-compiler protobuf-devel
