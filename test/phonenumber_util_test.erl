@@ -172,7 +172,7 @@ get_length_of_national_destination_code_test() ->
     P7 = phonenumber:new(),
     P71 = phonenumber:set_country_code(54, P7),
     P72 = phonenumber:set_national_number(91187654321, P71),
-    3 = phonenumber_util:get_length_of_national_destination_code(P72),
+    1 = phonenumber_util:get_length_of_national_destination_code(P72),
 
     %% Google Singapore. Singapore has NDC "6521".
     P8 = phonenumber:new(),
@@ -213,8 +213,8 @@ get_length_of_national_destination_code_test() ->
     4 = phonenumber_util:get_length_of_national_destination_code(PC2).
 
 get_country_mobile_token_test() ->
-    CountryCallingCodeMX = phonenumber_util:get_country_code_for_region(<<"MX">>),
-    <<"1">> = phonenumber_util:get_country_mobile_token(CountryCallingCodeMX),
+    CountryCallingCodeMX = phonenumber_util:get_country_code_for_region(<<"AR">>),
+    <<"9">> = phonenumber_util:get_country_mobile_token(CountryCallingCodeMX),
 
     %% Country calling code for Sweden, which has no mobile token.
     CountryCallingCodeSE = phonenumber_util:get_country_code_for_region(<<"SE">>),
@@ -549,28 +549,28 @@ format_mx_number_test() ->
     P1 = phonenumber:new(),
     P11 = phonenumber:set_country_code(52, P1),
     P12 = phonenumber:set_national_number(12345678900, P11),
-    <<"044 234 567 8900">> = phonenumber_util:format(P12, national), 
-    <<"+52 1 234 567 8900">> = phonenumber_util:format(P12, international),
+    <<"234 567 8900">> = phonenumber_util:format(P12, national),
+    <<"+52 234 567 8900">> = phonenumber_util:format(P12, international),
     <<"+5212345678900">> = phonenumber_util:format(P12, e164),
 
     P2 = phonenumber:new(),
     P21 = phonenumber:set_country_code(52, P2),
     P22 = phonenumber:set_national_number(15512345678, P21),
-    <<"044 55 1234 5678">> = phonenumber_util:format(P22, national), 
-    <<"+52 1 55 1234 5678">> = phonenumber_util:format(P22, international),
+    <<"55 1234 5678">> = phonenumber_util:format(P22, national),
+    <<"+52 55 1234 5678">> = phonenumber_util:format(P22, international),
     <<"+5215512345678">> = phonenumber_util:format(P22, e164),
 
     P3 = phonenumber:new(),
     P31 = phonenumber:set_country_code(52, P3),
     P32 = phonenumber:set_national_number(3312345678, P31),
-    <<"01 33 1234 5678">> = phonenumber_util:format(P32, national), 
+    <<"33 1234 5678">> = phonenumber_util:format(P32, national),
     <<"+52 33 1234 5678">> = phonenumber_util:format(P32, international),
     <<"+523312345678">> = phonenumber_util:format(P32, e164),
 
     P4 = phonenumber:new(),
     P41 = phonenumber:set_country_code(52, P4),
     P42 = phonenumber:set_national_number(8211234567, P41),
-    <<"01 821 123 4567">> = phonenumber_util:format(P42, national), 
+    <<"821 123 4567">> = phonenumber_util:format(P42, national),
     <<"+52 821 123 4567">> = phonenumber_util:format(P42, international),
     <<"+528211234567">> = phonenumber_util:format(P42, e164).
 
@@ -592,12 +592,12 @@ format_national_number_with_carrier_code_test() ->
     P1 = phonenumber:new(),
     P11 = phonenumber:set_country_code(54, P1),
     P12 = phonenumber:set_national_number(91234125678, P11),
-    <<"91234125678">> = phonenumber_util:format(P12, national),
+    <<"012 15-3412-5678">> = phonenumber_util:format(P12, national),
     %% Test formatting with a carrier code.
-    <<"91234125678">> = phonenumber_util:format_national_number_with_carrier_code(P12, <<"15">>),
-    <<"91234125678">> = phonenumber_util:format_national_number_with_carrier_code(P12, <<"">>),
+    <<"012 15-3412-5678">> = phonenumber_util:format_national_number_with_carrier_code(P12, <<"15">>),
+    <<"012 15-3412-5678">> = phonenumber_util:format_national_number_with_carrier_code(P12, <<"">>),
     %% Here the international rule is used, so no carrier code should be present.
-    <<"+54 91234125678">> = phonenumber_util:format(P12, international),
+    <<"+54 9 12 3412-5678">> = phonenumber_util:format(P12, international),
 
     %% We don't support this for the US so there should be no change.
     P2 = phonenumber:new(),
@@ -631,20 +631,20 @@ format_national_number_with_preferred_carrier_code_test() ->
     P11 = phonenumber:set_country_code(54, P1),
     P12 = phonenumber:set_national_number(91234125678, P11),
     %% Test formatting with no preferred carrier code stored in the number itself.
-    <<"91234125678">> = phonenumber_util:format_national_number_with_preferred_carrier_code(P12, <<"15">>),
-    <<"91234125678">> = phonenumber_util:format_national_number_with_preferred_carrier_code(P12, <<"">>),
+    <<"012 15-3412-5678">> = phonenumber_util:format_national_number_with_preferred_carrier_code(P12, <<"15">>),
+    <<"012 15-3412-5678">> = phonenumber_util:format_national_number_with_preferred_carrier_code(P12, <<"">>),
 
     %% Test formatting with preferred carrier code present.
     P13 = phonenumber:set_preferred_domestic_carrier_code(<<"19">>, P12),
-    <<"91234125678">> = phonenumber_util:format(P13, national),
-    <<"91234125678">> = phonenumber_util:format_national_number_with_preferred_carrier_code(P13, <<"15">>),
-    <<"91234125678">> = phonenumber_util:format_national_number_with_preferred_carrier_code(P13, <<"">>),
+    <<"012 15-3412-5678">> = phonenumber_util:format(P13, national),
+    <<"012 15-3412-5678">> = phonenumber_util:format_national_number_with_preferred_carrier_code(P13, <<"15">>),
+    <<"012 15-3412-5678">> = phonenumber_util:format_national_number_with_preferred_carrier_code(P13, <<"">>),
   
     %% When the preferred_domestic_carrier_code is present (even when it contains
     %% an empty string), use it instead of the default carrier code passed in.
 
     P14 = phonenumber:set_preferred_domestic_carrier_code(<<"">>, P13),
-    <<"91234125678">> = phonenumber_util:format_national_number_with_preferred_carrier_code(P14, <<"15">>),
+    <<"012 15-3412-5678">> = phonenumber_util:format_national_number_with_preferred_carrier_code(P14, <<"15">>),
 
     P2 = phonenumber:new(),
     P21 = phonenumber:set_country_code(1, P2),
@@ -891,12 +891,7 @@ is_mobile_test() ->
     P4 = phonenumber:new(),
     P41 = phonenumber:set_country_code(49, P4),
     P42 = phonenumber:set_national_number(15123456789, P41),
-    mobile = phonenumber_util:get_number_type(P42),
-
-    P5 = phonenumber:new(),
-    P51 = phonenumber:set_country_code(54, P5),
-    P52 = phonenumber:set_national_number(91187654321, P51),
-    mobile = phonenumber_util:get_number_type(P52).
+    mobile = phonenumber_util:get_number_type(P42).
 
 is_fixed_line_test() ->
     P1 = phonenumber:new(),
