@@ -1,2 +1,3 @@
 *.o
 /env.mk
+*.DS_Store
