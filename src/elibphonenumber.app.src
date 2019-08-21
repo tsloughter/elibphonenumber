@@ -3,7 +3,7 @@
     {maintainers, ["Silviu Caragea"]},
     {licenses, ["Apache"]},
     {links,[{"Github","https://github.com/silviucpp/elibphonenumber"}]},
-    {vsn, "8.10.0"},
+    {vsn, "8.10.17"},
     {registered, []},
     {applications, [kernel, stdlib, trie]},
     {mod, {elibphonenumber, []}},
