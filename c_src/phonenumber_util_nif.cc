@@ -383,7 +383,7 @@ bool term_to_phonenumber(ErlNifEnv* env, const ERL_NIF_TERM term, PhoneNumber* p
 
     if(enif_is_identical(array[kPhoneNumberHasNationalNumberIndex], ATOMS.atomTrue))
     {
-        uint64_t national_number;
+        unsigned long national_number;
 
         if (!enif_get_uint64(env, array[kPhoneNumberNationalNumberIndex], &national_number))
             return false;
