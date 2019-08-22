@@ -200,8 +200,8 @@ bool term_to_phonenumber_type(const ERL_NIF_TERM term, PhoneNumberUtil::PhoneNum
 
 ERL_NIF_TERM phonenumber_type_to_term(PhoneNumberUtil::PhoneNumberType type)
 {
-	 switch(type)
-	 {
+    switch(type)
+    {
 		case PhoneNumberUtil::FIXED_LINE:
 			return ATOMS.atomFixedLine;
 		case PhoneNumberUtil::MOBILE:
@@ -226,7 +226,7 @@ ERL_NIF_TERM phonenumber_type_to_term(PhoneNumberUtil::PhoneNumberType type)
 			return ATOMS.atomVoiceMail;
 		case PhoneNumberUtil::UNKNOWN:
 			return ATOMS.atomUnknown;
-	 }
+	}
 
 	return ATOMS.atomUnknown;
 }

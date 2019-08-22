@@ -931,11 +931,11 @@ is_fixed_line_and_mobile_test() ->
     P22 = phonenumber:set_national_number(1987654321, P21),
     unknown = phonenumber_util:get_number_type(P22).
 
-is_shared_cost_test() ->
-    P1 = phonenumber:new(),
-    P11 = phonenumber:set_country_code(44, P1),
-    P12 = phonenumber:set_national_number(8431231234, P11),
-    shared_cost = phonenumber_util:get_number_type(P12).
+% is_shared_cost_test() ->
+%     P1 = phonenumber:new(),
+%     P11 = phonenumber:set_country_code(44, P1),
+%     P12 = phonenumber:set_national_number(8431231234, P11),
+%     shared_cost = phonenumber_util:get_number_type(P12).
 
 is_personal_number_test() ->
     P1 = phonenumber:new(),
