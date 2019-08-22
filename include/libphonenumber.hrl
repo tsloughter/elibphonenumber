@@ -25,7 +25,8 @@
     from_number_with_plus_sign | 
     from_number_with_idd |
     from_number_without_plus_sign |
-    from_default_country.
+    from_default_country |
+    unspecified.
 
 -type phonenumber_type() :: 
     fixed_line | 
@@ -47,10 +48,11 @@
     national |
     rfc3966.
 
-
 -type validation_result() :: 
     is_possible |
+    is_possible_local_only |
     invalid_country_code |
+    invalid_length |
     too_short |
     too_long.
 

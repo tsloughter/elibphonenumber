@@ -37,9 +37,8 @@ else
 				-lboost_thread
 endif
 
-CXXFLAGS +=  -fPIC -g -Wextra -Werror -std=c++11 -fno-exceptions -Wno-missing-field-initializers -Wno-switch \
- 		     -I $(BASEDIR)/_build/deps/libphonenumber/cpp/build/install/include  \
- 		     -DI18N_PHONENUMBERS_NO_THREAD_SAFETY
+CXXFLAGS +=  -fPIC -g -Wextra -Werror -std=c++11 -fno-exceptions -Wno-missing-field-initializers \
+ 		     -I $(BASEDIR)/_build/deps/libphonenumber/cpp/build/install/include
 
 LDFLAGS +=  -L$(BASEDIR)/_build/deps/libphonenumber/cpp/build \
 			-lboost_system \

@@ -51,10 +51,13 @@ struct atoms
 	ERL_NIF_TERM atomUnknown;
 
 	ERL_NIF_TERM atomIsPossible;
+    ERL_NIF_TERM atomIsPossibleLocalOnly;
 	ERL_NIF_TERM atomInvalidContryCode;
+    ERL_NIF_TERM atomInvalidLength;
 	ERL_NIF_TERM atomTooShort;
 	ERL_NIF_TERM atomTooLong;
 
+    ERL_NIF_TERM atomFromNumberUnspecified;
 	ERL_NIF_TERM atomFromNumberWithPlusSign;
 	ERL_NIF_TERM atomFromNumberWithIdd;
 	ERL_NIF_TERM atomFromNumberWithoutPlusSign;
@@ -153,6 +156,8 @@ bool term_to_phonenumber_country_code_source(const ERL_NIF_TERM term, PhoneNumbe
 		*country_code_source = PhoneNumber::FROM_NUMBER_WITHOUT_PLUS_SIGN;
 	else if(enif_is_identical(ATOMS.atomFromDefaultCountry, term))
 		*country_code_source = PhoneNumber::FROM_DEFAULT_COUNTRY;
+    else if(enif_is_identical(ATOMS.atomFromNumberUnspecified, term))
+		*country_code_source = PhoneNumber::UNSPECIFIED;
 	else
 		return_value = false;
 
@@ -232,10 +237,14 @@ ERL_NIF_TERM phonenumber_validation_result_to_term(PhoneNumberUtil::ValidationRe
     {
         case PhoneNumberUtil::IS_POSSIBLE:
             return ATOMS.atomIsPossible;
+        case PhoneNumberUtil::IS_POSSIBLE_LOCAL_ONLY:
+            return ATOMS.atomIsPossibleLocalOnly;
         case PhoneNumberUtil::INVALID_COUNTRY_CODE:
         	return ATOMS.atomInvalidContryCode;
         case PhoneNumberUtil::TOO_SHORT:
         	return ATOMS.atomTooShort;
+        case PhoneNumberUtil::INVALID_LENGTH:
+        	return ATOMS.atomInvalidLength;
         case PhoneNumberUtil::TOO_LONG:
         	return ATOMS.atomTooLong;
     }
@@ -255,9 +264,11 @@ ERL_NIF_TERM phonenumber_country_code_source_to_term(PhoneNumber::CountryCodeSou
         	return ATOMS.atomFromNumberWithoutPlusSign;
         case PhoneNumber::FROM_DEFAULT_COUNTRY:
         	return ATOMS.atomFromDefaultCountry;
+        case PhoneNumber::UNSPECIFIED:
+            return ATOMS.atomFromNumberUnspecified;
     }
 
-    return ATOMS.atomFromDefaultCountry;
+    return ATOMS.atomFromNumberUnspecified;
 }
 
 ERL_NIF_TERM phonenumber_match_type_to_term(PhoneNumberUtil::MatchType match_type)
@@ -470,7 +481,9 @@ int on_nif_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
 	ATOMS.atomUnknown = make_atom(env, "unknown");
 
 	ATOMS.atomIsPossible = make_atom(env, "is_possible");
+    ATOMS.atomIsPossibleLocalOnly = make_atom(env, "is_possible_local_only");
 	ATOMS.atomInvalidContryCode = make_atom(env, "invalid_country_code");
+    ATOMS.atomInvalidLength = make_atom(env, "invalid_length");
 	ATOMS.atomTooShort = make_atom(env, "too_short");
 	ATOMS.atomTooLong = make_atom(env, "too_long");
 
@@ -478,6 +491,7 @@ int on_nif_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
 	ATOMS.atomFromNumberWithIdd = make_atom(env, "from_number_with_idd");
 	ATOMS.atomFromNumberWithoutPlusSign = make_atom(env, "from_number_without_plus_sign");
 	ATOMS.atomFromDefaultCountry = make_atom(env, "from_default_country");
+    ATOMS.atomFromNumberUnspecified = make_atom(env, "unspecified");
 
 	ATOMS.atomInvalidNumber = make_atom(env, "invalid_number");
 	ATOMS.atomNoMatch = make_atom(env, "no_match");
