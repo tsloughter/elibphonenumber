@@ -28,8 +28,6 @@ function fail_check
 
 qmake_unix()
 {
-    export CFLAGS="-fPIC -Wno-deprecated-declarations"
-    export CXXFLAGS="-fPIC -Wno-deprecated-declarations"
 	fail_check cmake -DCMAKE_INSTALL_PREFIX:PATH=install  ..
 }
 
@@ -41,9 +39,6 @@ qmake_darwin()
 
     echo "ICU_PATH=${ICU_PATH}"
     echo "ICU_VERSION=${ICU_VERSION}"
-
-    export CFLAGS="-fPIC -Wno-deprecated-declarations"
-    export CXXFLAGS="-fPIC -Wno-deprecated-declarations -std=c++11"
 
 	fail_check cmake -DCMAKE_INSTALL_PREFIX:PATH=install \
 	      -DGTEST_SOURCE_DIR=../../../googletest/googletest/ \
@@ -66,6 +61,9 @@ install_libphonenumber()
 	mkdir -p ${DESTINATION}/cpp/build
 	pushd ${DESTINATION}/cpp/build
 
+    export CFLAGS="-fPIC -Wno-deprecated-declarations"
+    export CXXFLAGS="-fPIC -Wno-deprecated-declarations -std=c++11"
+
 	case $OS in
         Linux)
             qmake_unix
@@ -76,8 +74,8 @@ install_libphonenumber()
         ;;
 
         *)
-        echo "Your system $OS is not supported"
-        exit 1
+            echo "Your system $OS is not supported"
+            exit 1
     esac
 
 	fail_check make -j 8
