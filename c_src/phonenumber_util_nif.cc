@@ -10,6 +10,25 @@ using namespace i18n::phonenumbers;
 
 namespace {
 
+//phone number tuple indexes
+
+const int32_t kPhoneNumberHasCountryCodeIndex = 1;
+const int32_t kPhoneNumberCountryCodeIndex = 2;
+const int32_t kPhoneNumberHasNationalNumberIndex = 3;
+const int32_t kPhoneNumberNationalNumberIndex = 4;
+const int32_t kPhoneNumberHasExtensionIndex = 5;
+const int32_t kPhoneNumberExtensionIndex = 6;
+const int32_t kPhoneNumberHasNumberOfLeadingZerosIndex = 7;
+const int32_t kPhoneNumberNumberOfLeadingZerosIndex = 8;
+const int32_t kPhoneNumberHasItalianLeadingZeroIndex = 9;
+const int32_t kPhoneNumberItalianLeadingZeroIndex = 10;
+const int32_t kPhoneNumberHasRawInputIndex = 11;
+const int32_t kPhoneNumberRawInputIndex = 12;
+const int32_t kPhoneNumberHasCountryCodeSourceIndex = 13;
+const int32_t kPhoneNumberCountryCodeSourceIndex = 14;
+const int32_t kPhoneNumberHasPreferredDomesticCarrierCodeIndex = 15;
+const int32_t kPhoneNumberPreferredDomesticCarrierCodeIndex = 16;    
+
 struct atoms
 {
 	ERL_NIF_TERM atomTrue;
@@ -53,7 +72,7 @@ struct atoms
 
 } ATOMS;
 
-ERL_NIF_TERM make_atom(ErlNifEnv* env, const char* name)
+inline ERL_NIF_TERM make_atom(ErlNifEnv* env, const char* name)
 {
     ERL_NIF_TERM ret;
 
@@ -61,6 +80,44 @@ ERL_NIF_TERM make_atom(ErlNifEnv* env, const char* name)
         return ret;
 
     return enif_make_atom(env, name);
+}
+
+inline bool get_binary(ErlNifEnv* env, ERL_NIF_TERM term, ErlNifBinary* bin)
+{
+    if(enif_is_binary(env, term))
+        return enif_inspect_binary(env, term, bin);
+
+    return enif_inspect_iolist_as_binary(env, term, bin);
+}
+
+inline ERL_NIF_TERM make_binary(ErlNifEnv* env, const char* buff, size_t length)
+{
+    ERL_NIF_TERM term;
+    uint8_t *destination_buffer = enif_make_new_binary(env, length, &term);
+    memcpy(destination_buffer, buff, length);
+    return term;
+}
+
+inline bool term_to_boolean(const ERL_NIF_TERM term, bool* boolean)
+{
+	if(enif_is_identical(term, ATOMS.atomTrue))
+	{
+		*boolean = true;
+		return true;
+	}
+
+	if(enif_is_identical(term, ATOMS.atomFalse))
+	{
+		*boolean = false;
+		return true;
+	}
+
+	return false;
+}
+
+inline ERL_NIF_TERM boolean_to_term(bool boolean)
+{
+	return boolean ? ATOMS.atomTrue : ATOMS.atomFalse;
 }
 
 bool term_to_phonenumber_format(const ERL_NIF_TERM term, PhoneNumberUtil::PhoneNumberFormat* number_format)
@@ -131,28 +188,6 @@ bool term_to_phonenumber_type(const ERL_NIF_TERM term, PhoneNumberUtil::PhoneNum
 		return_value = false;
 
 	return return_value;
-}
-
-bool term_to_boolean(const ERL_NIF_TERM term, bool* boolean)
-{
-	if(enif_is_identical(term, ATOMS.atomTrue))
-	{
-		*boolean = true;
-		return true;
-	}
-
-	if(enif_is_identical(term, ATOMS.atomFalse))
-	{
-		*boolean = false;
-		return true;
-	}
-
-	return false;
-}
-
-inline ERL_NIF_TERM boolean_to_term(bool boolean)
-{
-	return boolean ? ATOMS.atomTrue : ATOMS.atomFalse;
 }
 
 ERL_NIF_TERM phonenumber_type_to_term(PhoneNumberUtil::PhoneNumberType type)
@@ -243,45 +278,44 @@ ERL_NIF_TERM phonenumber_match_type_to_term(PhoneNumberUtil::MatchType match_typ
 
 ERL_NIF_TERM phonenumber_to_term(ErlNifEnv* env, PhoneNumber phoneNumber)
 {
-    unsigned char *buffer;
-    ERL_NIF_TERM raw_input;
-    ERL_NIF_TERM extension;
-    ERL_NIF_TERM preferred_domestic_carrier_code;
+    //country_code
 
-    // required int32 country_code = 1;
     ERL_NIF_TERM has_country_code = boolean_to_term(phoneNumber.has_country_code());
     ERL_NIF_TERM country_code = enif_make_int(env, phoneNumber.country_code());
 
-    // required uint64 national_number = 2;
+    //national_number
+
     ERL_NIF_TERM has_national_number = boolean_to_term(phoneNumber.has_national_number());
-    ERL_NIF_TERM national_number = enif_make_ulong(env, phoneNumber.national_number());
+    ERL_NIF_TERM national_number = enif_make_uint64(env, phoneNumber.national_number());
 
-    // optional string extension = 3;
+    //extension
+
     ERL_NIF_TERM has_extension = boolean_to_term(phoneNumber.has_extension());
-    buffer = enif_make_new_binary(env, phoneNumber.extension().size(), &extension);
-    std::copy(phoneNumber.extension().begin(), phoneNumber.extension().end(), buffer);
+    ERL_NIF_TERM extension = make_binary(env, phoneNumber.extension().c_str(), phoneNumber.extension().size());
 
-    // optional bool italian_leading_zero = 4;
-    ERL_NIF_TERM has_italian_leading_zero = boolean_to_term(phoneNumber.has_italian_leading_zero());
-    ERL_NIF_TERM italian_leading_zero = boolean_to_term(phoneNumber.italian_leading_zero());
+    //number_of_leading_zeros
 
-    // optional int32 number_of_leading_zeros = 8 [default = 1];
     ERL_NIF_TERM has_number_of_leading_zeros = boolean_to_term(phoneNumber.has_number_of_leading_zeros());
     ERL_NIF_TERM number_of_leading_zeros = enif_make_int(env, phoneNumber.number_of_leading_zeros());
 
-    // optional string raw_input = 5;
-    ERL_NIF_TERM has_raw_input = boolean_to_term(phoneNumber.has_raw_input());
-    buffer = enif_make_new_binary(env, phoneNumber.raw_input().size(), &raw_input);
-    std::copy(phoneNumber.raw_input().begin(), phoneNumber.raw_input().end(), buffer);
+    //italian_leading_zero;
 
-    // optional .i18n.phonenumbers.PhoneNumber.CountryCodeSource country_code_source = 6;
+    ERL_NIF_TERM has_italian_leading_zero = boolean_to_term(phoneNumber.has_italian_leading_zero());
+    ERL_NIF_TERM italian_leading_zero = boolean_to_term(phoneNumber.italian_leading_zero());
+
+    //raw_input
+
+    ERL_NIF_TERM has_raw_input = boolean_to_term(phoneNumber.has_raw_input());
+    ERL_NIF_TERM raw_input = make_binary(env, phoneNumber.raw_input().c_str(), phoneNumber.raw_input().size());
+
+    //country_code_source;
+
     ERL_NIF_TERM has_country_code_source = boolean_to_term(phoneNumber.has_country_code_source());
     ERL_NIF_TERM country_code_source = phonenumber_country_code_source_to_term(env, phoneNumber.country_code_source());
 
-    // optional string preferred_domestic_carrier_code = 7;
+    //preferred_domestic_carrier_code
     ERL_NIF_TERM has_preferred_domestic_carrier_code = boolean_to_term(phoneNumber.has_preferred_domestic_carrier_code());
-    buffer = enif_make_new_binary(env, phoneNumber.preferred_domestic_carrier_code().size(), &preferred_domestic_carrier_code);
-    std::copy(phoneNumber.preferred_domestic_carrier_code().begin(), phoneNumber.preferred_domestic_carrier_code().end(), buffer);
+    ERL_NIF_TERM preferred_domestic_carrier_code = make_binary(env, phoneNumber.preferred_domestic_carrier_code().c_str(), phoneNumber.preferred_domestic_carrier_code().size());
 
     return enif_make_tuple(env, 17,
         ATOMS.atomPhoneNumber,
@@ -305,102 +339,106 @@ ERL_NIF_TERM phonenumber_to_term(ErlNifEnv* env, PhoneNumber phoneNumber)
 
 bool term_to_phonenumber(ErlNifEnv* env, const ERL_NIF_TERM term, PhoneNumber* phoneNumber)
 {
-    int integer;
-    unsigned long longer; //FIXME should be unsingned long long
-    bool boolean;
-    ErlNifBinary bin;
-    int PhoneNumberElems;
-
+    int32_t array_count;
     const ERL_NIF_TERM* array;
 
-    // Get Term
-    if (!enif_get_tuple(env, term, &PhoneNumberElems, &array) || PhoneNumberElems != 17)
+    if (!enif_get_tuple(env, term, &array_count, &array) || array_count != 17)
         return false;
 
-    // required int32 country_code = 1;
-    if (!enif_get_int(env, array[2], &integer))
-        return false;
+    //country_code
 
-    phoneNumber->set_country_code(integer);
-
-    // required uint64 national_number = 2;
-    if (!enif_get_ulong(env, array[4], &longer))
-        return false;
-
-    phoneNumber->set_national_number(longer);
-
-    // optional string extension = 3;
-
-    if (!term_to_boolean(array[5], &boolean))
-        return false;
-
-    if (boolean)
+    if(enif_is_identical(array[kPhoneNumberHasCountryCodeIndex], ATOMS.atomTrue))
     {
-        if (!enif_inspect_iolist_as_binary(env, array[6], &bin))
+        int32_t country_code;
+
+        if (!enif_get_int(env, array[kPhoneNumberCountryCodeIndex], &country_code))
             return false;
 
-        phoneNumber->set_extension(std::string ( (char*) bin.data, bin.size));
+        phoneNumber->set_country_code(country_code);
     }
 
-    // optional int32 number_of_leading_zeros = 8 [default = 1];
-    if (!term_to_boolean(array[7], &boolean))
-        return false;
+    //national_number
 
-    if (boolean)
+    if(enif_is_identical(array[kPhoneNumberHasNationalNumberIndex], ATOMS.atomTrue))
     {
-        if (!enif_get_int(env, array[8], &integer))
+        uint64_t national_number;
+
+        if (!enif_get_uint64(env, array[kPhoneNumberNationalNumberIndex], &national_number))
             return false;
 
-        phoneNumber->set_number_of_leading_zeros(integer);
+        phoneNumber->set_national_number(national_number);
     }
 
-    // optional bool italian_leading_zero = 4;
-    if (!term_to_boolean(array[9], &boolean))
-        return false;
+    //extension
 
-    if (boolean)
+    if(enif_is_identical(array[kPhoneNumberHasExtensionIndex], ATOMS.atomTrue))
     {
-        if (!term_to_boolean(array[10], &boolean))
+        ErlNifBinary bin;
+
+        if(!get_binary(env, array[kPhoneNumberExtensionIndex], &bin))
             return false;
 
-        phoneNumber->set_italian_leading_zero(boolean);
+        phoneNumber->set_extension(reinterpret_cast<const char*>(bin.data), bin.size);
     }
 
-    // optional string raw_input = 5;
-    if (!term_to_boolean(array[11], &boolean))
-        return false;
+    //number_of_leading_zeros
 
-    if (boolean)
+    if(enif_is_identical(array[kPhoneNumberHasNumberOfLeadingZerosIndex], ATOMS.atomTrue))
     {
-        if (!enif_inspect_iolist_as_binary(env, array[12], &bin))
+        int32_t number_of_leading_zeros;
+
+        if (!enif_get_int(env, array[kPhoneNumberNumberOfLeadingZerosIndex], &number_of_leading_zeros))
             return false;
 
-        phoneNumber->set_raw_input(std::string ( (char*) bin.data, bin.size));
+        phoneNumber->set_number_of_leading_zeros(number_of_leading_zeros);
     }
 
-    // optional .i18n.phonenumbers.PhoneNumber.CountryCodeSource country_code_source = 6;
-    if (!term_to_boolean(array[13], &boolean))
-        return false;
+    //italian_leading_zero
 
-    if (boolean)
+    if(enif_is_identical(array[kPhoneNumberHasItalianLeadingZeroIndex], ATOMS.atomTrue))
+    {
+        bool italian_leading_zero;
+
+        if (!term_to_boolean(array[kPhoneNumberItalianLeadingZeroIndex], &italian_leading_zero))
+            return false;
+
+        phoneNumber->set_italian_leading_zero(italian_leading_zero);
+    }
+
+    //raw_input
+
+    if(enif_is_identical(array[kPhoneNumberHasRawInputIndex], ATOMS.atomTrue))
+    {
+        ErlNifBinary bin;
+
+        if(!get_binary(env, array[kPhoneNumberRawInputIndex], &bin))
+            return false;
+
+        phoneNumber->set_raw_input(reinterpret_cast<const char*>(bin.data), bin.size);
+    }
+
+    //country_code_source
+
+    if(enif_is_identical(array[kPhoneNumberHasCountryCodeSourceIndex], ATOMS.atomTrue))
     {
         PhoneNumber::CountryCodeSource country_code_source;
-        if (!term_to_phonenumber_country_code_source(array[14], &country_code_source))
+
+        if (!term_to_phonenumber_country_code_source(array[kPhoneNumberCountryCodeSourceIndex], &country_code_source))
             return false;
 
         phoneNumber->set_country_code_source(country_code_source);
     }
 
-    // Get Preferred Domestic Carrier Code
-    if (!term_to_boolean(array[15], &boolean))
-        return false;
+    //preferred_domestic_carrier_code
 
-    if (boolean)
+    if(enif_is_identical(array[kPhoneNumberHasPreferredDomesticCarrierCodeIndex], ATOMS.atomTrue))
     {
-        if (!enif_inspect_iolist_as_binary(env, array[16], &bin))
+        ErlNifBinary bin;
+
+        if(!get_binary(env, array[kPhoneNumberPreferredDomesticCarrierCodeIndex], &bin))
             return false;
 
-        phoneNumber->set_preferred_domestic_carrier_code(std::string ( (char*) bin.data, bin.size));
+        phoneNumber->set_preferred_domestic_carrier_code(reinterpret_cast<const char*>(bin.data), bin.size);
     }
 
     return true;
@@ -505,7 +543,7 @@ static ERL_NIF_TERM ConvertAlphaCharactersInNumber_nif(ErlNifEnv* env, int argc,
     ERL_NIF_TERM ret;
     unsigned char *number = enif_make_new_binary(env, str.size(), &ret);
     std::copy(str.begin(), str.end(), number);
-    
+
     return ret;
 }
 
@@ -523,7 +561,7 @@ static ERL_NIF_TERM NormalizeDigitsOnly_nif(ErlNifEnv* env, int argc, const ERL_
     ERL_NIF_TERM ret;
     unsigned char *number = enif_make_new_binary(env, str.size(), &ret);
     std::copy(str.begin(), str.end(), number);
-    
+
     return ret;
 }
 
@@ -541,7 +579,7 @@ static ERL_NIF_TERM NormalizeDiallableCharsOnly_nif(ErlNifEnv* env, int argc, co
     ERL_NIF_TERM ret;
     unsigned char *number = enif_make_new_binary(env, str.size(), &ret);
     std::copy(str.begin(), str.end(), number);
-    
+
     return ret;
 }
 
@@ -558,7 +596,7 @@ static ERL_NIF_TERM GetNationalSignificantNumber_nif(ErlNifEnv* env, int argc, c
     ERL_NIF_TERM ret;
     unsigned char *number = enif_make_new_binary(env, str.size(), &ret);
     std::copy(str.begin(), str.end(), number);
-    
+
     return ret;
 }
 
@@ -591,13 +629,13 @@ static ERL_NIF_TERM GetCountryMobileToken_nif(ErlNifEnv* env, int argc, const ER
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
 
     std::string mobile_token;
-    
+
     phone_util_->GetCountryMobileToken(code, &mobile_token);
 
     ERL_NIF_TERM ret;
     unsigned char *token = enif_make_new_binary(env, mobile_token.size(), &ret);
     std::copy(mobile_token.begin(), mobile_token.end(), token);
-    
+
     return ret;
 }
 
@@ -618,7 +656,7 @@ static ERL_NIF_TERM Format_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
     ERL_NIF_TERM ret;
     unsigned char *number = enif_make_new_binary(env, str.size(), &ret);
     std::copy(str.begin(), str.end(), number);
-    
+
     return ret;
 }
 
@@ -640,7 +678,7 @@ static ERL_NIF_TERM FormatNationalNumberWithPreferredCarrierCode_nif(ErlNifEnv* 
     ERL_NIF_TERM ret;
     unsigned char *number = enif_make_new_binary(env, str.size(), &ret);
     std::copy(str.begin(), str.end(), number);
-    
+
     return ret;
 }
 
@@ -662,7 +700,7 @@ static ERL_NIF_TERM FormatNationalNumberWithCarrierCode_nif(ErlNifEnv* env, int 
     ERL_NIF_TERM ret;
     unsigned char *number = enif_make_new_binary(env, str.size(), &ret);
     std::copy(str.begin(), str.end(), number);
-    
+
     return ret;
 }
 
@@ -688,7 +726,7 @@ static ERL_NIF_TERM FormatNumberForMobileDialing_nif(ErlNifEnv* env, int argc, c
     ERL_NIF_TERM ret;
     unsigned char *number = enif_make_new_binary(env, str.size(), &ret);
     std::copy(str.begin(), str.end(), number);
-    
+
     return ret;
 }
 
@@ -732,7 +770,7 @@ static ERL_NIF_TERM FormatInOriginalFormat_nif(ErlNifEnv* env, int argc, const E
     ERL_NIF_TERM ret;
     unsigned char *number = enif_make_new_binary(env, str.size(), &ret);
     std::copy(str.begin(), str.end(), number);
-    
+
     return ret;
 }
 
@@ -754,7 +792,7 @@ static ERL_NIF_TERM FormatOutOfCountryKeepingAlphaChars_nif(ErlNifEnv* env, int 
     ERL_NIF_TERM ret;
     unsigned char *number = enif_make_new_binary(env, str.size(), &ret);
     std::copy(str.begin(), str.end(), number);
-    
+
     return ret;
 }
 
@@ -776,9 +814,7 @@ static ERL_NIF_TERM GetNumberType_nif(ErlNifEnv* env, int argc, const ERL_NIF_TE
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
 
-    PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
-
-    return phonenumber_type_to_term(phone_util_->GetNumberType(phoneNumber));
+    return phonenumber_type_to_term(PhoneNumberUtil::GetInstance()->GetNumberType(phoneNumber));
 }
 
 static ERL_NIF_TERM IsValidNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -821,7 +857,7 @@ static ERL_NIF_TERM GetRegionCodeForNumber_nif(ErlNifEnv* env, int argc, const E
     ERL_NIF_TERM ret;
     unsigned char *region = enif_make_new_binary(env, region_code.size(), &ret);
     std::copy(region_code.begin(), region_code.end(), region);
-    
+
     return ret;
 }
 
@@ -833,7 +869,7 @@ static ERL_NIF_TERM GetCountryCodeForRegion_nif(ErlNifEnv* env, int argc, const 
 
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
     std::string region_code( (char*) bin.data, bin.size);
-    
+
     return enif_make_int(env, phone_util_->GetCountryCodeForRegion(region_code));
 }
 
@@ -846,13 +882,13 @@ static ERL_NIF_TERM GetRegionCodeForCountryCode_nif(ErlNifEnv* env, int argc, co
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
 
     std::string region_code;
-    
+
     phone_util_->GetRegionCodeForCountryCode(code, &region_code);
 
     ERL_NIF_TERM ret;
     unsigned char *region = enif_make_new_binary(env, region_code.size(), &ret);
     std::copy(region_code.begin(), region_code.end(), region);
-    
+
     return ret;
 }
 
@@ -915,7 +951,7 @@ static ERL_NIF_TERM GetNddPrefixForRegion_nif(ErlNifEnv* env, int argc, const ER
     ERL_NIF_TERM ret;
     unsigned char *prefix = enif_make_new_binary(env, national_prefix.size(), &ret);
     std::copy(national_prefix.begin(), national_prefix.end(), prefix);
-    
+
     return ret;
 }
 

@@ -988,16 +988,11 @@ country_with_no_number_desc_test() ->
 
 unknown_country_calling_code_test() ->
     P = phonenumber:new(),
-    P1 = phonenumber:set_country_code(kInvalidCountryCode, P),
+    P1 = phonenumber:set_country_code(?INVALID_COUNTRY_CODE, P),
     P12 = phonenumber:set_national_number(12345, P1),
 
     false = phonenumber_util:is_valid_number(P12),
-
-    %% It's not very well defined as to what the E164 representation for a number
-    %% with an invalid country calling code is, but just prefixing the country
-    %% code and national number is about the best we can do.
-
-    <<"+012345">> = phonenumber_util:format(P12, e164).
+    <<"+212345">> = phonenumber_util:format(P12, e164).
 
 is_number_match_test() ->
     P1 = phonenumber:new(),

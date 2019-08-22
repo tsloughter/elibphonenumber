@@ -82,9 +82,7 @@ get_country_code(#phonenumber{country_code=Value}) ->
     NewPhoneNumber::phonenumber().
 
 set_country_code(CountryCode, PhoneNumber) when is_integer(CountryCode)  ->
-    PhoneNumber#phonenumber{has_country_code = true, country_code = CountryCode};
-set_country_code(_CountryCode, #phonenumber{}=PhoneNumber) ->
-    PhoneNumber.
+    PhoneNumber#phonenumber{has_country_code = true, country_code = CountryCode}.
 
 -spec clear_country_code(PhoneNumber::phonenumber()) ->
     NewPhoneNumber::phonenumber().
@@ -110,9 +108,7 @@ get_national_number(#phonenumber{national_number=Value}) ->
     NewPhoneNumber::phonenumber().
 
 set_national_number(NationalNumber, PhoneNumber) when is_integer(NationalNumber) ->
-    PhoneNumber#phonenumber{has_national_number=true, national_number = NationalNumber};
-set_national_number(_NationalNumber, #phonenumber{}=PhoneNumber) ->
-    PhoneNumber.
+    PhoneNumber#phonenumber{has_national_number=true, national_number = NationalNumber}.
 
 -spec clear_national_number(PhoneNumber::phonenumber()) ->
     NewPhoneNumber::phonenumber().
