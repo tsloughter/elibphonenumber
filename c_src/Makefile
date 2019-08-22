@@ -30,6 +30,7 @@ ifeq ($(UNAME_SYS), darwin)
 				-Wl,-U,_enif_is_identical \
 				-Wl,-U,_enif_inspect_iolist_as_binary \
 				-Wl,-U,_enif_get_ulong \
+				-Wl,-U,_enif_get_uint64 \
 				-Wl,-U,_enif_get_tuple \
 				-Wl,-U,_enif_get_int
 else
