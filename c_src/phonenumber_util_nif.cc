@@ -1,10 +1,13 @@
 #include <phonenumbers/phonenumberutil.h>
 #include <phonenumbers/phonenumber.pb.h>
+
 #include <erl_nif.h>
 #include <memory>
 #include <iostream>
 #include <set>
 #include <string>
+
+#define UNUSED(expr) do { (void)(expr); } while (0)
 
 using namespace i18n::phonenumbers;
 
@@ -240,7 +243,7 @@ ERL_NIF_TERM phonenumber_validation_result_to_term(PhoneNumberUtil::ValidationRe
     return ATOMS.atomInvalidContryCode;
 }
 
-ERL_NIF_TERM phonenumber_country_code_source_to_term(ErlNifEnv* env, PhoneNumber::CountryCodeSource country_code_source)
+ERL_NIF_TERM phonenumber_country_code_source_to_term(PhoneNumber::CountryCodeSource country_code_source)
 {
     switch(country_code_source)
     {
@@ -311,7 +314,7 @@ ERL_NIF_TERM phonenumber_to_term(ErlNifEnv* env, PhoneNumber phoneNumber)
     //country_code_source;
 
     ERL_NIF_TERM has_country_code_source = boolean_to_term(phoneNumber.has_country_code_source());
-    ERL_NIF_TERM country_code_source = phonenumber_country_code_source_to_term(env, phoneNumber.country_code_source());
+    ERL_NIF_TERM country_code_source = phonenumber_country_code_source_to_term(phoneNumber.country_code_source());
 
     //preferred_domestic_carrier_code
     ERL_NIF_TERM has_preferred_domestic_carrier_code = boolean_to_term(phoneNumber.has_preferred_domestic_carrier_code());
@@ -448,6 +451,8 @@ bool term_to_phonenumber(ErlNifEnv* env, const ERL_NIF_TERM term, PhoneNumber* p
 
 int on_nif_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
 {
+    UNUSED(load_info);
+
 	ATOMS.atomTrue = make_atom(env, "true");
 	ATOMS.atomFalse = make_atom(env, "false");
 
@@ -495,6 +500,9 @@ int on_nif_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
 
 static ERL_NIF_TERM GetSupportedRegions_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+    UNUSED(argv);
+
     PhoneNumberUtil *phone_util_ = PhoneNumberUtil::GetInstance();
 
     std::set<std::string> regions;
@@ -519,6 +527,8 @@ static ERL_NIF_TERM GetSupportedRegions_nif(ErlNifEnv* env, int argc, const ERL_
 
 static ERL_NIF_TERM IsAlphaNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary bin;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
@@ -531,6 +541,8 @@ static ERL_NIF_TERM IsAlphaNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TE
 
 static ERL_NIF_TERM ConvertAlphaCharactersInNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary bin;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
@@ -549,6 +561,8 @@ static ERL_NIF_TERM ConvertAlphaCharactersInNumber_nif(ErlNifEnv* env, int argc,
 
 static ERL_NIF_TERM NormalizeDigitsOnly_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary bin;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
@@ -567,6 +581,8 @@ static ERL_NIF_TERM NormalizeDigitsOnly_nif(ErlNifEnv* env, int argc, const ERL_
 
 static ERL_NIF_TERM NormalizeDiallableCharsOnly_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary bin;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
@@ -585,6 +601,8 @@ static ERL_NIF_TERM NormalizeDiallableCharsOnly_nif(ErlNifEnv* env, int argc, co
 
 static ERL_NIF_TERM GetNationalSignificantNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -602,6 +620,8 @@ static ERL_NIF_TERM GetNationalSignificantNumber_nif(ErlNifEnv* env, int argc, c
 
 static ERL_NIF_TERM GetLengthOfGeographicalAreaCode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -612,6 +632,8 @@ static ERL_NIF_TERM GetLengthOfGeographicalAreaCode_nif(ErlNifEnv* env, int argc
 
 static ERL_NIF_TERM GetLengthOfNationalDestinationCode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -622,6 +644,8 @@ static ERL_NIF_TERM GetLengthOfNationalDestinationCode_nif(ErlNifEnv* env, int a
 
 static ERL_NIF_TERM GetCountryMobileToken_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     int code;
     if (!enif_get_int(env, argv[0], &code))
         return enif_make_badarg(env);
@@ -641,6 +665,8 @@ static ERL_NIF_TERM GetCountryMobileToken_nif(ErlNifEnv* env, int argc, const ER
 
 static ERL_NIF_TERM Format_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -662,6 +688,8 @@ static ERL_NIF_TERM Format_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
 
 static ERL_NIF_TERM FormatNationalNumberWithPreferredCarrierCode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -684,6 +712,8 @@ static ERL_NIF_TERM FormatNationalNumberWithPreferredCarrierCode_nif(ErlNifEnv* 
 
 static ERL_NIF_TERM FormatNationalNumberWithCarrierCode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -706,6 +736,8 @@ static ERL_NIF_TERM FormatNationalNumberWithCarrierCode_nif(ErlNifEnv* env, int 
 
 static ERL_NIF_TERM FormatNumberForMobileDialing_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -732,6 +764,8 @@ static ERL_NIF_TERM FormatNumberForMobileDialing_nif(ErlNifEnv* env, int argc, c
 
 static ERL_NIF_TERM FormatOutOfCountryCallingNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -754,6 +788,8 @@ static ERL_NIF_TERM FormatOutOfCountryCallingNumber_nif(ErlNifEnv* env, int argc
 
 static ERL_NIF_TERM FormatInOriginalFormat_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -776,6 +812,8 @@ static ERL_NIF_TERM FormatInOriginalFormat_nif(ErlNifEnv* env, int argc, const E
 
 static ERL_NIF_TERM FormatOutOfCountryKeepingAlphaChars_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -798,6 +836,8 @@ static ERL_NIF_TERM FormatOutOfCountryKeepingAlphaChars_nif(ErlNifEnv* env, int 
 
 static ERL_NIF_TERM TruncateTooLongNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -810,7 +850,10 @@ static ERL_NIF_TERM TruncateTooLongNumber_nif(ErlNifEnv* env, int argc, const ER
 
 static ERL_NIF_TERM GetNumberType_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
+
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
 
@@ -819,6 +862,8 @@ static ERL_NIF_TERM GetNumberType_nif(ErlNifEnv* env, int argc, const ERL_NIF_TE
 
 static ERL_NIF_TERM IsValidNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -829,6 +874,8 @@ static ERL_NIF_TERM IsValidNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TE
 
 static ERL_NIF_TERM IsValidNumberForRegion_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -846,6 +893,8 @@ static ERL_NIF_TERM IsValidNumberForRegion_nif(ErlNifEnv* env, int argc, const E
 
 static ERL_NIF_TERM GetRegionCodeForNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -863,6 +912,8 @@ static ERL_NIF_TERM GetRegionCodeForNumber_nif(ErlNifEnv* env, int argc, const E
 
 static ERL_NIF_TERM GetCountryCodeForRegion_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary bin;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
@@ -875,6 +926,8 @@ static ERL_NIF_TERM GetCountryCodeForRegion_nif(ErlNifEnv* env, int argc, const 
 
 static ERL_NIF_TERM GetRegionCodeForCountryCode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     int code;
     if (!enif_get_int(env, argv[0], &code))
         return enif_make_badarg(env);
@@ -894,6 +947,8 @@ static ERL_NIF_TERM GetRegionCodeForCountryCode_nif(ErlNifEnv* env, int argc, co
 
 static ERL_NIF_TERM GetRegionCodesForCountryCallingCode_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     int code;
     if (!enif_get_int(env, argv[0], &code))
         return enif_make_badarg(env);
@@ -923,6 +978,8 @@ static ERL_NIF_TERM GetRegionCodesForCountryCallingCode_nif(ErlNifEnv* env, int 
 
 static ERL_NIF_TERM IsNANPACountry_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary regionCodeNif;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &regionCodeNif))
         return enif_make_badarg(env);
@@ -934,6 +991,8 @@ static ERL_NIF_TERM IsNANPACountry_nif(ErlNifEnv* env, int argc, const ERL_NIF_T
 
 static ERL_NIF_TERM GetNddPrefixForRegion_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary regionCodeNif;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &regionCodeNif))
         return enif_make_badarg(env);
@@ -957,6 +1016,8 @@ static ERL_NIF_TERM GetNddPrefixForRegion_nif(ErlNifEnv* env, int argc, const ER
 
 static ERL_NIF_TERM IsPossibleNumberWithReason_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -969,6 +1030,8 @@ static ERL_NIF_TERM IsPossibleNumberWithReason_nif(ErlNifEnv* env, int argc, con
 
 static ERL_NIF_TERM IsPossibleNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber))
         return enif_make_badarg(env);
@@ -979,6 +1042,8 @@ static ERL_NIF_TERM IsPossibleNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF
 
 static ERL_NIF_TERM IsPossibleNumberForString_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary nifNumber;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &nifNumber))
         return enif_make_badarg(env);
@@ -998,6 +1063,8 @@ static ERL_NIF_TERM IsPossibleNumberForString_nif(ErlNifEnv* env, int argc, cons
 
 static ERL_NIF_TERM GetExampleNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary bin;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
@@ -1015,6 +1082,8 @@ static ERL_NIF_TERM GetExampleNumber_nif(ErlNifEnv* env, int argc, const ERL_NIF
 
 static ERL_NIF_TERM GetExampleNumberForType_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary bin;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
         return enif_make_badarg(env);
@@ -1036,6 +1105,8 @@ static ERL_NIF_TERM GetExampleNumberForType_nif(ErlNifEnv* env, int argc, const 
 
 static ERL_NIF_TERM GetExampleNumberForNonGeoEntity_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     int code;
     if (!enif_get_int(env, argv[0], &code))
         return enif_make_badarg(env);
@@ -1052,6 +1123,8 @@ static ERL_NIF_TERM GetExampleNumberForNonGeoEntity_nif(ErlNifEnv* env, int argc
 
 static ERL_NIF_TERM Parse_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary numberToParse;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &numberToParse))
         return enif_make_badarg(env);
@@ -1072,6 +1145,8 @@ static ERL_NIF_TERM Parse_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
 
 static ERL_NIF_TERM ParseAndKeepRawInput_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary numberToParse;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &numberToParse))
         return enif_make_badarg(env);
@@ -1092,6 +1167,8 @@ static ERL_NIF_TERM ParseAndKeepRawInput_nif(ErlNifEnv* env, int argc, const ERL
 
 static ERL_NIF_TERM IsNumberMatch_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber1;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber1))
         return enif_make_badarg(env);
@@ -1108,6 +1185,8 @@ static ERL_NIF_TERM IsNumberMatch_nif(ErlNifEnv* env, int argc, const ERL_NIF_TE
 
 static ERL_NIF_TERM IsNumberMatchWithTwoStrings_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     ErlNifBinary nifFirstNumber;
     if (!enif_inspect_iolist_as_binary(env, argv[0], &nifFirstNumber))
         return enif_make_badarg(env);
@@ -1126,6 +1205,8 @@ static ERL_NIF_TERM IsNumberMatchWithTwoStrings_nif(ErlNifEnv* env, int argc, co
 
 static ERL_NIF_TERM IsNumberMatchWithOneString_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+    UNUSED(argc);
+
     PhoneNumber phoneNumber1;
     if (!term_to_phonenumber(env, argv[0], &phoneNumber1))
         return enif_make_badarg(env);
