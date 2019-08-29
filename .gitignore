@@ -9,3 +9,4 @@ ebin
 /.rebar/
 /.eunit/
 *.DS_Store
+/cppcheck_results.xml
