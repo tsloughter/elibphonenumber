@@ -1,8 +1,9 @@
 elibphonenumber
 ===============
 [![Build Status](https://travis-ci.org/silviucpp/elibphonenumber.svg?branch=master)](https://travis-ci.org/silviucpp/elibphonenumber)
-![GitHub](https://img.shields.io/github/license/silviucpp/elibphonenumber)
-![Maintenance](https://img.shields.io/maintenance/yes/2019)
+[![GitHub](https://img.shields.io/github/license/silviucpp/elibphonenumber)](https://img.shields.io/github/license/silviucpp/elibphonenumber)
+[![Hex.pm](https://img.shields.io/hexpm/v/elibphonenumber)](https://hex.pm/packages/elibphonenumber)
+[![Maintenance](https://img.shields.io/maintenance/yes/2019)]()
 
 Erlang port of [libphonenumber][1]
 
