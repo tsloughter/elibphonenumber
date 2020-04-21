@@ -28,7 +28,11 @@ function fail_check
 
 qmake_unix()
 {
-	fail_check cmake -DCMAKE_INSTALL_PREFIX:PATH=install  ..
+	fail_check cmake -DCMAKE_INSTALL_PREFIX:PATH=install \
+                     -DUSE_BOOST=OFF \
+                     -DUSE_RE2=OFF \
+                     -DUSE_ICU_REGEXP=ON \
+                     ..
 }
 
 qmake_darwin()
@@ -41,13 +45,15 @@ qmake_darwin()
     echo "ICU_VERSION=${ICU_VERSION}"
 
 	fail_check cmake -DCMAKE_INSTALL_PREFIX:PATH=install \
-	      -DGTEST_SOURCE_DIR=../../../googletest/googletest/ \
-          -DGTEST_INCLUDE_DIR=../../../googletest/googletest/include/ \
+	      -DUSE_BOOST=OFF \
+	      -DUSE_RE2=OFF \
+	      -DUSE_ICU_REGEXP=ON \
           -DICU_UC_INCLUDE_DIR=${ICU_PATH}/${ICU_VERSION}/include/ \
           -DICU_UC_LIB=${ICU_PATH}/${ICU_VERSION}/lib/libicuuc.dylib \
           -DICU_I18N_INCLUDE_DIR=${ICU_PATH}/${ICU_VERSION}/include/ \
           -DICU_I18N_LIB=${ICU_PATH}/${ICU_VERSION}/lib/libicui18n.dylib \
-          -DUSE_STD_MAP=ON \
+          -DGTEST_SOURCE_DIR=../../../googletest/googletest/ \
+          -DGTEST_INCLUDE_DIR=../../../googletest/googletest/include/ \
     ..
 }
 
@@ -100,15 +106,12 @@ run_installation()
          case $KERNEL in
             Ubuntu|Debian)
                 echo "Check Dependecies for $KERNEL"
-                fail_check dpkg -s  cmake cmake-curses-gui libgtest-dev libre2-dev libicu-dev \
-                                    libboost-dev libboost-thread-dev libboost-system-dev \
-                                    protobuf-compiler libprotobuf-dev
+                fail_check dpkg -s  cmake cmake-curses-gui libgtest-dev libicu-dev protobuf-compiler libprotobuf-dev
                 install_libphonenumber
                 ;;
             CentOS|Amazon)
                 echo "Check Dependecies for $KERNEL"
-                fail_check rpm -q --dump cmake gtest-devel re2-devel libicu-devel \
-                                    boost-devel protobuf-compiler protobuf-devel
+                fail_check rpm -q --dump cmake gtest-devel libicu-devel protobuf-compiler protobuf-devel
                 install_libphonenumber
                 ;;
             *)
@@ -116,7 +119,7 @@ run_installation()
          esac
             ;;
       Darwin)
-            brew install boost cmake icu4c pkg-config protobuf wget
+            brew install cmake pkg-config icu4c protobuf
             git clone https://github.com/google/googletest.git
             install_libphonenumber
             pushd ${DESTINATION}/cpp/build

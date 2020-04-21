@@ -19,36 +19,12 @@ In order to compile you need to make sure all dependencies needed to build `libp
 Next you can find a resume for each operating system where library was tested but in case you encounter problems you can 
 consult as well the documentation from building `libphonenumber` located [here][2]
 
-##### Ubuntu
+##### Ubuntu or Debian
 
 On the latest versions it's enough to do:
 
 ```bash
-sudo apt-get install cmake cmake-curses-gui libgtest-dev libre2-dev libicu-dev 
-sudo apt-get install libboost-dev libboost-thread-dev libboost-system-dev
-sudo apt-get install libprotobuf-dev protobuf-compiler
-```
-
-In case you are using `Ubuntu 14.04` also follow the following steps in order to install `libre` and `cmake-3`:
-
-```bash
-sudo apt-get remove cmake cmake-data
-sudo -E add-apt-repository -y ppa:george-edison55/cmake-3.x
-sudo -E apt-get update
-sudo apt-get install cmake
-
-wget http://mt.archive.ubuntu.com/ubuntu/pool/universe/r/re2/libre2-1_20140304+dfsg-2_amd64.deb -O libre2-1.deb
-wget http://es.archive.ubuntu.com/ubuntu/pool/universe/r/re2/libre2-dev_20140304+dfsg-2_amd64.deb -O libre2-dev.deb
-sudo dpkg -i libre2*.deb
-```
-
-##### Debian 9 (Stretch)
-
-The same as for Ubuntu
-
-```bash
-sudo apt-get install cmake cmake-curses-gui libgtest-dev libre2-dev libicu-dev 
-sudo apt-get install libboost-dev libboost-thread-dev libboost-system-dev
+sudo apt-get install cmake cmake-curses-gui libgtest-dev libicu-dev 
 sudo apt-get install libprotobuf-dev protobuf-compiler
 ```
 
@@ -61,7 +37,7 @@ sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noa
 
 And install packages:
 ```bash
-sudo yum install cmake git boost-devel gtest-devel libicu-devel protobuf-devel protobuf-compiler re2-devel
+sudo yum install cmake git gtest-devel libicu-devel protobuf-devel protobuf-compiler
 ```
 
 ##### Mac Os
