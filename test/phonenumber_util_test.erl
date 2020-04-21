@@ -172,7 +172,7 @@ get_length_of_national_destination_code_test() ->
     P7 = phonenumber:new(),
     P71 = phonenumber:set_country_code(54, P7),
     P72 = phonenumber:set_national_number(91187654321, P71),
-    1 = phonenumber_util:get_length_of_national_destination_code(P72),
+    3 = phonenumber_util:get_length_of_national_destination_code(P72),
 
     %% Google Singapore. Singapore has NDC "6521".
     P8 = phonenumber:new(),

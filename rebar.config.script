@@ -1,7 +1,7 @@
 IsRebar3 = erlang:function_exported(rebar3, main, 1),
 
 Rebar2Deps = [
-    {trie, ".*", {git, "https://github.com/okeuday/trie.git", {tag, "v1.7.5"}}}
+    {trie, ".*", {git, "https://github.com/okeuday/trie.git", {tag, "v1.8.0"}}}
 ],
 
 case IsRebar3 of

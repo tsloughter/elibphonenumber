@@ -1,6 +1,6 @@
 {"1.1.0",
-[{<<"trie">>,{pkg,<<"trie">>,<<"1.7.5">>},0}]}.
+[{<<"trie">>,{pkg,<<"trie">>,<<"1.8.0">>},0}]}.
 [
 {pkg_hash,[
- {<<"trie">>, <<"A4A91ACD0B52CC803B1EEB6C75D48F9172DFE452F7B5415C63D0C5FC481EDACB">>}]}
+ {<<"trie">>, <<"3CC06DDE5D88EE31A8568808D4187D8CEA1DBAB632158EA88A19603B0453A6AF">>}]}
 ].
