@@ -121,7 +121,12 @@ run_installation()
             ;;
       Darwin)
             brew install cmake pkg-config icu4c protobuf
-            git clone https://github.com/google/googletest.git
+
+            fail_check git clone https://github.com/google/googletest.git
+            pushd googletest
+            fail_check git checkout 703bd9caab50b139428cea1aaff9974ebee5742e
+            popd
+
             install_libphonenumber
             pushd ${DESTINATION}/cpp/build
             rm -rf *.dylib
