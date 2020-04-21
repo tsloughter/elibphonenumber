@@ -29,7 +29,7 @@ function fail_check
 qmake_unix()
 {
 	fail_check cmake -DCMAKE_INSTALL_PREFIX:PATH=install \
-                     -DUSE_BOOST=OFF \
+                     -DUSE_BOOST=ON \
                      -DUSE_RE2=OFF \
                      -DUSE_ICU_REGEXP=ON \
                      ..
@@ -106,12 +106,13 @@ run_installation()
          case $KERNEL in
             Ubuntu|Debian)
                 echo "Check Dependecies for $KERNEL"
-                fail_check dpkg -s  cmake cmake-curses-gui libgtest-dev libicu-dev protobuf-compiler libprotobuf-dev
+                fail_check dpkg -s cmake cmake-curses-gui libgtest-dev libicu-dev protobuf-compiler libprotobuf-dev \
+                                   libboost-dev libboost-thread-dev libboost-system-dev
                 install_libphonenumber
                 ;;
             CentOS|Amazon)
                 echo "Check Dependecies for $KERNEL"
-                fail_check rpm -q --dump cmake gtest-devel libicu-devel protobuf-compiler protobuf-devel
+                fail_check rpm -q --dump cmake gtest-devel libicu-devel boost-devel protobuf-compiler protobuf-devel
                 install_libphonenumber
                 ;;
             *)
