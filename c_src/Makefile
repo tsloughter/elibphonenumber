@@ -36,14 +36,12 @@ ifeq ($(UNAME_SYS), darwin)
 				-Wl,-U,_enif_get_tuple \
 				-Wl,-U,_enif_get_int
 else
-	LDFLAGS +=  -l:libphonenumber.a \
-				-lboost_thread
+	LDFLAGS +=  -lboost_thread
 endif
 
-CXXFLAGS +=  -fPIC -g -Wextra -Werror -std=c++11 -fno-exceptions -Wno-unused-parameter -Wno-missing-field-initializers \
- 		     -I $(BASEDIR)/_build/deps/libphonenumber/cpp/build/install/include
+CXXFLAGS +=  -fPIC -g -Wextra -Werror -std=c++11 -fno-exceptions -Wno-unused-parameter -Wno-missing-field-initializers
 
-LDFLAGS +=  -L$(BASEDIR)/_build/deps/libphonenumber/cpp/build \
+LDFLAGS +=  -lphonenumber \
 			-lboost_system \
 			-lboost_date_time \
 			-licui18n \
